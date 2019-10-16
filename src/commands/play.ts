@@ -2,6 +2,7 @@ import * as Discord from "discord.js";
 import * as ConfigFile from "../config";
 import { IBotCommand } from "../api";
 
+export let queue = Array<any>();
 export default class play implements IBotCommand {
 
     private readonly ytdl = require('ytdl-core');
@@ -10,7 +11,6 @@ export default class play implements IBotCommand {
     private readonly _command: string = "play";  
     private readonly youtube = new this.Youtube(ConfigFile.config.youtubeToken)
 
-    private _queue = Array<any>();
     private _isPlaying: boolean = false;
 
     help(): string {
@@ -53,12 +53,12 @@ export default class play implements IBotCommand {
                     voiceChannel
                 };
 
-                this._queue.push(track);
+                queue.push(track);
 
                 if (this._isPlaying == false) {
                     this._isPlaying = true;
                     msgObject.channel.send(`Playing ${track.title}`);
-                    return this.playTrack(this._queue)
+                    return this.playTrack(queue)
                 } else if (this._isPlaying == true) {
                     return msgObject.channel.send(`${track.title} added to queue`);
                 }
@@ -87,11 +87,11 @@ export default class play implements IBotCommand {
                     voiceChannel
                 };
 
-                this._queue.push(track);
+                queue.push(track);
                 try {
                     if (this._isPlaying == false) {
                         msgObject.channel.send(`Playing ${track.title}`);
-                        return this.playTrack(this._queue);
+                        return this.playTrack(queue);
                     } else {
                         // TODO: Add link
                         return msgObject.channel.send(`${track.title} added to queue`);

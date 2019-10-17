@@ -8,9 +8,14 @@ let commands: IBotCommand[] = [];
 
 loadCommands(`${__dirname}/commands`);
 
-// TODO:
-// Object (maybe small class) for MediaData; queue: , isPlaying: , dispatcher: ,
-// on skip: dispatcher.end() (see .events in play)
+class MediaData {
+    public queue?: Array<any>;
+    public isPlaying?: boolean;
+    public streamDispatcher?: Discord.StreamDispatcher;
+}
+
+// properties will be assigned once a queue has began from the play command
+export let mediaData = new MediaData();
 
 client.on("ready", () => {
     console.log("Ready to go");

@@ -1,5 +1,6 @@
 import * as Discord from "discord.js";
 import * as ConfigFile from "../config";
+import { mediaData } from "../index";
 import { IBotCommand } from "../api";
 
 export let queue = Array<any>();
@@ -54,6 +55,7 @@ export default class play implements IBotCommand {
                 };
 
                 queue.push(track);
+                mediaData.queue = queue;
 
                 if (this._isPlaying == false) {
                     this._isPlaying = true;
@@ -107,8 +109,8 @@ export default class play implements IBotCommand {
         
         // begin at queue[0]
         queue[0].voiceChannel
-            .join().then((connection: any) => {
-                const dispatcher = connection
+            .join().then((connection: Discord.VoiceConnection) => {
+                const dispatcher: Discord.StreamDispatcher = connection
                     .playStream(
                         this.ytdl(queue[0].url, {
                             volume: 0.1,
@@ -117,6 +119,8 @@ export default class play implements IBotCommand {
                         })
                     )
                     .on("start", () => {
+                        // save dispatcher so that it can be accessed by skip and other commands
+                        mediaData.streamDispatcher = dispatcher;
                         voiceChannel = queue[0].voiceChannel;
                     })
                     .on("end", () => {

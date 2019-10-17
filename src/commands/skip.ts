@@ -1,7 +1,6 @@
 import * as Discord from "discord.js";
-import * as Play from "./play";
 import { IBotCommand } from "../api";
-// import MediaData as MediaData from "../index";
+import { mediaData } from "../index";
 
 export default class skip implements IBotCommand {
 
@@ -16,13 +15,12 @@ export default class skip implements IBotCommand {
         return command === this._command;
     }
 
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
-        // throw new Error("Method not implemented.");
-        let currentQueue: Array<any> = Play.queue;
-        
-        console.log(currentQueue[0].title);
-        console.log(currentQueue.length);
-        // TODO: Report skipped track to play.ts
-        currentQueue.shift();
+    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
+        if (mediaData.streamDispatcher === undefined || mediaData === undefined) { 
+            return msgObject.reply("No track is playing!");
+        } else {
+            mediaData.streamDispatcher.end("Track skipped with !skip");
+            return msgObject.channel.send("Track skipped!");
+        }
     }
 }

@@ -48,9 +48,11 @@ export default class play implements IBotCommand {
 
                 // extract properties from youtube video object
                 const title: string = video.title;
+                const duration: string = video.duration;
                 const track = {
                     url,
                     title,
+                    duration,
                     voiceChannel
                 };
 
@@ -59,10 +61,22 @@ export default class play implements IBotCommand {
 
                 if (this._isPlaying == false) {
                     this._isPlaying = true;
-                    msgObject.channel.send(`Playing ${track.title}`);
+                    let embed: Discord.RichEmbed = new Discord.RichEmbed()
+                        .setTitle("Playing track")
+                        .setColor("#c4302b")
+                        .setThumbnail(queue[0].thumbnail)
+                        .setDescription(`Playing ${track.title} ${track.url}`)
+                        .addField("Duration: ", `${queue[0].duration.minutes} minutes`); 
+                    msgObject.channel.send(embed);
                     return this.playTrack(queue)
                 } else if (this._isPlaying == true) {
-                    return msgObject.channel.send(`${track.title} added to queue`);
+                    let embed: Discord.RichEmbed = new Discord.RichEmbed()
+                        .setTitle("Track added to queue")
+                        .setColor("#c4302b")
+                        .setThumbnail(queue[0].thumbnail)
+                        .setDescription(`${track.title} added to queue ${track.url}`)
+                        .addField("Duration: ", `${queue[0].duration.minutes} minutes`); 
+                    return msgObject.channel.send(embed);
                 }
                 
             } catch (exception) {
@@ -81,9 +95,11 @@ export default class play implements IBotCommand {
 
             const url: string = video.url; 
             const title: string = video.title;
+            const duration: string = video.duration;
             const track = {
                 url,
                 title,
+                duration,
                 voiceChannel
             };
 
@@ -91,11 +107,22 @@ export default class play implements IBotCommand {
             try {
                 if (this._isPlaying == false) {
                     this._isPlaying = true;
-                    msgObject.channel.send(`Playing ${track.title}`);
+                    let embed: Discord.RichEmbed = new Discord.RichEmbed()
+                        .setTitle("Playing track")
+                        .setColor("#c4302b")
+                        .setThumbnail(queue[0].thumbnail)
+                        .setDescription(`Playing ${track.title} ${track.url}`)
+                        .addField("Duration: ", `${queue[0].duration.minutes} minutes`); 
+                    msgObject.channel.send(embed);
                     return this.playTrack(queue);
                 } else if (this._isPlaying == true) {
-                    // TODO: Add link
-                    return msgObject.channel.send(`${track.title} added to queue`);
+                    let embed: Discord.RichEmbed = new Discord.RichEmbed()
+                        .setTitle("Track added to queue")
+                        .setColor("#c4302b")
+                        .setThumbnail(queue[0].thumbnail)
+                        .setDescription(`${track.title} added to queue ${track.url}`)
+                        .addField("Duration: ", `${queue[0].duration.minutes} minutes`); 
+                    return msgObject.channel.send(embed);
                 }
             } catch (exception) { msgObject.channel.send(`Error playing track from bot: ${exception}`); }
 
@@ -127,7 +154,6 @@ export default class play implements IBotCommand {
                             return this.playTrack(queue);
                         } else {
                             this._isPlaying = false;
-                            // return voiceChannel.leave();
                         }
                     })
                     .on('error', (e: any) => {

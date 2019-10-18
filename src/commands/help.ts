@@ -26,12 +26,11 @@ export default class help implements IBotCommand {
 
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
         let embed: Discord.RichEmbed = new Discord.RichEmbed()
-            .setTitle("Command descriptions")
+            .setTitle("**__BlitzBot Manual__**")
             .setColor("#d59363");
         this._commandToHelpStringMap.forEach((value: string, key: string) => {
             embed.addField(key, value);
         });
-        msgObject.channel.send("debug");
         msgObject.channel.send(embed);
     }
 }

@@ -6,7 +6,7 @@ export default class join implements IBotCommand {
     private readonly _command = "join";
 
     help(): string {
-        throw new Error("Method not implemented.");
+        return "Make bot join the currently connected voice channel.";
     }    
     
     isThisCommand(command: string): boolean {

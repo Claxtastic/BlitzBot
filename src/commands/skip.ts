@@ -7,8 +7,7 @@ export default class skip implements IBotCommand {
     private readonly _command: string = "skip";
 
     help(): string {
-        // throw new Error("Method not implemented.");
-        return "";
+        return "Skip the currently playing track";
     }    
     
     isThisCommand(command: string): boolean {

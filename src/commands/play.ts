@@ -15,7 +15,7 @@ export default class play implements IBotCommand {
     private _isPlaying: boolean = false;
 
     help(): string {
-        throw new Error("Method not implemented.");
+        return "Play somethin";
     }
 
     isThisCommand(command: string): boolean {

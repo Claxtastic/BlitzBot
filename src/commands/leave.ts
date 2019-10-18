@@ -6,7 +6,7 @@ export default class leave implements IBotCommand {
     private readonly _command = "leave";
 
     help(): string {
-        throw new Error("Method not implemented.");
+        return "Make bot leave currently connected voice channel.";
     }    
     
     isThisCommand(command: string): boolean {

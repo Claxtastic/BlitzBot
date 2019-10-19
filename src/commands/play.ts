@@ -95,7 +95,7 @@ export default class play implements IBotCommand {
                         .setColor("#c4302b")
                         .setThumbnail(this._queue[0].thumbnail)
                         .setDescription(`${track.title} \n ${track.url}`)
-                        .addField("Track Duration: ", `${this._queue[0].duration}`); 
+                        .addField("Track Duration: ", `${track.duration}`); 
                     msgObject.channel.send(embed);
                     return this.playTrack(this._queue)
                 } else if (this._isPlaying == true) {
@@ -104,7 +104,7 @@ export default class play implements IBotCommand {
                         .setColor("#c4302b")
                         .setThumbnail(this._queue[0].thumbnail)
                         .setDescription(`${track.title} added to queue \n ${track.url}`)
-                        .addField("Track Duration: ", `${this._queue[0].duration}`); 
+                        .addField("Track Duration: ", `${track.duration}`); 
                     return msgObject.channel.send(embed);
                 }
                 

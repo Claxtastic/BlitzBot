@@ -19,6 +19,7 @@ export let mediaData = new MediaData();
 
 client.on("ready", () => {
     console.log("Ready to go");
+    client.user.setPresence({ game: { name: "" } });
 })
 
 /* Command Handler */

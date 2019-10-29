@@ -98,7 +98,7 @@ export default class play implements IBotCommand {
                             .setDescription(`${track.title} \n ${track.url}`)
                             .addField("Track Duration: ", `${track.duration}`); 
                         msgObject.channel.send(embed);
-                        return this.playTrack(queue)
+                        return this.playTrack(queue, client);
                     } else if (this._isPlaying == true) {
                         let embed: Discord.RichEmbed = new Discord.RichEmbed()
                             .setTitle("Track added to queue")
@@ -148,7 +148,7 @@ export default class play implements IBotCommand {
                         .setDescription(`${track.title} \n ${track.url}`)
                         .addField("Track Duration: ", `${track.duration}`); 
                     msgObject.channel.send(embed);
-                    return this.playTrack(queue);
+                    return this.playTrack(queue, client);
                 } else if (this._isPlaying == true) {
                     let embed: Discord.RichEmbed = new Discord.RichEmbed()
                         .setTitle("Track added to queue")
@@ -163,7 +163,7 @@ export default class play implements IBotCommand {
         } catch (exception) { console.log(exception); msgObject.channel.send(`Received error from YouTube: ${exception}`); }
     }
 
-    playTrack(queue: Array<any>) {
+    playTrack(queue: Array<any>, client: Discord.Client) {
         let voiceChannel: Discord.VoiceChannel;
         
         // begin at queue[0]
@@ -181,13 +181,15 @@ export default class play implements IBotCommand {
                         // save dispatcher so that it can be accessed by skip and other commands
                         mediaData.streamDispatcher = dispatcher;
                         voiceChannel = queue[0].voiceChannel;
+                        client.user.setPresence({ game: { name: queue[0].title } });
                     })
                     .on("end", () => {
                         queue.shift();
                         if (queue.length >= 1) {
-                            return this.playTrack(queue);
+                            return this.playTrack(queue, client);
                         } else {
                             this._isPlaying = false;
+                            client.user.setPresence({ game: { name: "" } });
                         }
                     })
                     .on('error', (e: any) => {

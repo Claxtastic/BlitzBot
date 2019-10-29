@@ -30,7 +30,7 @@ export default class play implements IBotCommand {
         // if video is hours long, include; if video hours < 10, add leading zero
         // else, video is not hours long, empty string
         if (durationObject.hours) {
-            hoursBit = `${durationObject.hours} + ":"`;
+            hoursBit = `${durationObject.hours}:`;
             if (durationObject.hours < 10) {
                 hoursBit = "0" + hoursBit;
             }

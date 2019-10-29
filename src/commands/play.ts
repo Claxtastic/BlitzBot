@@ -3,7 +3,7 @@ import * as ConfigFile from "../config";
 import { mediaData } from "../index";
 import { IBotCommand } from "../api";
 
-// export let queue = Array<any>();
+export let queue = Array<any>();
 export default class play implements IBotCommand {
 
     private readonly ytdl = require('ytdl-core');
@@ -11,12 +11,11 @@ export default class play implements IBotCommand {
 
     private readonly _command: string = "play";  
     private readonly youtube = new this.Youtube(ConfigFile.config.youtubeToken)
-
+    
     private _isPlaying: boolean = false;
-    private _queue = Array<any>();
 
-    help(): string {
-        return "Play somethin.";
+    help(): string[] {
+        return ["play", "Play a YouTube link or play the 1st result of a YouTube search."];
     }
 
     isThisCommand(command: string): boolean {
@@ -64,6 +63,7 @@ export default class play implements IBotCommand {
             const url: string = query;
 
             try {
+
                 // get video youtube /watch?
                 let queryParts: string[] = query
                     .replace(/(>|<)/gi, '')
@@ -86,27 +86,29 @@ export default class play implements IBotCommand {
                     voiceChannel
                 };
 
-                this._queue.push(track);
+                queue.push(track);
 
-                if (this._isPlaying == false) {
-                    this._isPlaying = true;
-                    let embed: Discord.RichEmbed = new Discord.RichEmbed()
-                        .setTitle("Playing track")
-                        .setColor("#c4302b")
-                        .setThumbnail(this._queue[0].thumbnail)
-                        .setDescription(`${track.title} \n ${track.url}`)
-                        .addField("Track Duration: ", `${track.duration}`); 
-                    msgObject.channel.send(embed);
-                    return this.playTrack(this._queue)
-                } else if (this._isPlaying == true) {
-                    let embed: Discord.RichEmbed = new Discord.RichEmbed()
-                        .setTitle("Track added to queue")
-                        .setColor("#c4302b")
-                        .setThumbnail(this._queue[0].thumbnail)
-                        .setDescription(`${track.title} added to queue \n ${track.url}`)
-                        .addField("Track Duration: ", `${track.duration}`); 
-                    return msgObject.channel.send(embed);
-                }
+                try{ 
+                    if (this._isPlaying == false) {
+                        this._isPlaying = true;
+                        let embed: Discord.RichEmbed = new Discord.RichEmbed()
+                            .setTitle("Playing track")
+                            .setColor("#c4302b")
+                            .setThumbnail(queue[0].thumbnail)
+                            .setDescription(`${track.title} \n ${track.url}`)
+                            .addField("Track Duration: ", `${track.duration}`); 
+                        msgObject.channel.send(embed);
+                        return this.playTrack(queue)
+                    } else if (this._isPlaying == true) {
+                        let embed: Discord.RichEmbed = new Discord.RichEmbed()
+                            .setTitle("Track added to queue")
+                            .setColor("#c4302b")
+                            .setThumbnail(queue[0].thumbnail)
+                            .setDescription(`${track.title} added to queue \n ${track.url}`)
+                            .addField("Track Duration: ", `${track.duration}`); 
+                        return msgObject.channel.send(embed);
+                    }
+                } catch (exception) { msgObject.channel.send(`Error playing track from bot: ${exception}`); }
                 
             } catch (exception) {
                 console.log(exception);
@@ -135,18 +137,18 @@ export default class play implements IBotCommand {
                 voiceChannel
             };
 
-            this._queue.push(track);
+            queue.push(track);
             try {
                 if (this._isPlaying == false) {
                     this._isPlaying = true;
                     let embed: Discord.RichEmbed = new Discord.RichEmbed()
                         .setTitle("Playing track")
                         .setColor("#c4302b")
-                        .setThumbnail(this._queue[0].thumbnail)
+                        .setThumbnail(queue[0].thumbnail)
                         .setDescription(`${track.title} \n ${track.url}`)
                         .addField("Track Duration: ", `${track.duration}`); 
                     msgObject.channel.send(embed);
-                    return this.playTrack(this._queue);
+                    return this.playTrack(queue);
                 } else if (this._isPlaying == true) {
                     let embed: Discord.RichEmbed = new Discord.RichEmbed()
                         .setTitle("Track added to queue")

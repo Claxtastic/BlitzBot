@@ -1,23 +1,13 @@
 import * as Discord from "discord.js";
-import * as play from "./play";
-import * as join from "./join";
-import * as leave from "./leave";
-import * as skip from "./skip";
-import * as volume from "./volume";
 import { IBotCommand } from "../api";
+import * as ConfigFile from "../config";
 
 export default class help implements IBotCommand {
 
     private _command: string = "help";
-    private _commandToHelpStringMap: Map<string, string> = new Map<string, string>()
-        .set("play", play.default.prototype.help())
-        .set("join", join.default.prototype.help())
-        .set("leave", leave.default.prototype.help())
-        .set("skip", skip.default.prototype.help())
-        .set("volume", volume.default.prototype.help());
 
-    help(): string {
-        return "";
+    help(): string[] {
+        return ["help", "Display this text."];
     }    
     
     isThisCommand(command: string): boolean {
@@ -25,12 +15,17 @@ export default class help implements IBotCommand {
     }
 
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
+
         let embed: Discord.RichEmbed = new Discord.RichEmbed()
             .setTitle("**__BlitzBot Manual__**")
             .setColor("#d59363");
-        this._commandToHelpStringMap.forEach((value: string, key: string) => {
-            embed.addField(key, value);
-        });
+            
+        for (const commandName of ConfigFile.config.commands as string[]) {
+            const commandsClass = require(`${`${__dirname}`}/${commandName}`).default;
+            const command = new commandsClass() as IBotCommand;
+            embed.addField(command.help()[0], command.help()[1]);
+        }
+        
         msgObject.channel.send(embed);
     }
 }

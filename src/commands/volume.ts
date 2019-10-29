@@ -5,8 +5,8 @@ export default class volume implements IBotCommand {
 
     private readonly _command = "volume"; 
 
-    help(): string {
-        return "Not yet implemented.";
+    help(): string[] {
+        return ["volume", "Not yet implemented."];
     }    
     
     isThisCommand(command: string): boolean {

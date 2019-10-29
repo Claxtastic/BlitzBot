@@ -20,7 +20,7 @@ export let mediaData = new MediaData();
 client.on("ready", () => {
     console.log("Ready to go");
     client.user.setPresence({ game: { name: "" } });
-})
+});
 
 /* Command Handler */
 client.on("message", msg => {
@@ -28,7 +28,7 @@ client.on("message", msg => {
     if (!msg.content.startsWith(ConfigFile.config.prefix)) return;
 
     handleCommand(msg);
-})
+});
 
 async function handleCommand(msg: Discord.Message) {
     let command = msg.content.split(" ")[0].replace(ConfigFile.config.prefix, "");
@@ -60,4 +60,11 @@ function loadCommands(commandsPath: string) {
     }
 }
 
+
+
 client.login(ConfigFile.config.token);
+
+client.on("disconnect", msg => {
+    console.log("Disconnected and destroying client");
+    client.destroy();
+});

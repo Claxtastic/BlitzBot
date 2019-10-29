@@ -22,8 +22,21 @@ export default class play implements IBotCommand {
         return command === this._command;
     }
 
-    // createPlayResponse() {}
-    // TODO: Wrap play message response from bot in here
+    createPlayResponse(track: any): Discord.RichEmbed {
+        const embed: Discord.RichEmbed = new Discord.RichEmbed();
+        if (this._isPlaying == false) {
+            embed.setTitle("Playing track")
+        } else {
+            embed.setTitle("Track added to queue")
+        }
+        
+        embed
+            .setColor("#c4302b")
+            .setThumbnail(track.thumbnail)
+            .setDescription(`${track.title} added to queue \n ${track.url}`)
+            .addField("Track Duration: ", `${track.duration}`); 
+        return embed;
+    }
 
     formatVideoDuration(durationObject: any): string {
         let hoursBit: string = "";
@@ -58,12 +71,21 @@ export default class play implements IBotCommand {
 
         let query: string = msgObject.content.split(ConfigFile.config.prefix + "play ")[1];
 
+        const track = {
+            title: "",
+            url: "",
+            duration: "",
+            thumbnail: "",
+            voiceChannel: voiceChannel
+        };
+
+        let video: any;
+
         // if query is a YouTube URL
         if (query.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/)) {
             const url: string = query;
 
             try {
-
                 // get video youtube /watch?
                 let queryParts: string[] = query
                     .replace(/(>|<)/gi, '')
@@ -72,95 +94,41 @@ export default class play implements IBotCommand {
                 // the youtube video /watch? ID
                 const id: string = queryParts[2].split(/[^0-9a-z_\-]/i)[0];
                 // youtube video object
-                const video = await this.youtube.getVideoByID(id);
-
-                // extract properties from youtube video object
-                const title: string = video.title;
-                const duration: string = this.formatVideoDuration(video.duration);
-                const thumbnail = video.thumbnails.high.url;
-                const track = {
-                    url,
-                    title,
-                    duration,
-                    thumbnail,
-                    voiceChannel
-                };
-
-                queue.push(track);
-
-                try{ 
-                    if (this._isPlaying == false) {
-                        this._isPlaying = true;
-                        let embed: Discord.RichEmbed = new Discord.RichEmbed()
-                            .setTitle("Playing track")
-                            .setColor("#c4302b")
-                            .setThumbnail(queue[0].thumbnail)
-                            .setDescription(`${track.title} \n ${track.url}`)
-                            .addField("Track Duration: ", `${track.duration}`); 
-                        msgObject.channel.send(embed);
-                        return this.playTrack(queue, client);
-                    } else if (this._isPlaying == true) {
-                        let embed: Discord.RichEmbed = new Discord.RichEmbed()
-                            .setTitle("Track added to queue")
-                            .setColor("#c4302b")
-                            .setThumbnail(queue[0].thumbnail)
-                            .setDescription(`${track.title} added to queue \n ${track.url}`)
-                            .addField("Track Duration: ", `${track.duration}`); 
-                        return msgObject.channel.send(embed);
-                    }
-                } catch (exception) { msgObject.channel.send(`Error playing track from bot: ${exception}`); }
-                
-            } catch (exception) {
-                console.log(exception);
-            }
+                video = await this.youtube.getVideoByID(id);
+            } catch (exception) { console.log(`Received error from YouTube: ${exception}`); }
         }
-        
-        /* query is a youtube search term */
-        try { 
-            // get one video (top result) from the search query
-            const videoResult: any[] = await this.youtube.searchVideos(query, 1);
 
-            // TODO?: Make 2nd parm not soft coded, add if (videoResult > 1) 
+        // else play argument was a YouTube search term
+        else {
+            try { 
+                // get one video (top result) from the search query
+                const videoResult: any[] = await this.youtube.searchVideos(query, 1);
 
-            // get video ID of top result of query
-            const video = await this.youtube.getVideoByID(videoResult[0].id);
+                // TODO?: Make 2nd parm not soft coded, add if (videoResult > 1) 
 
-            const url: string = video.url; 
-            const title: string = video.title;
-            const duration: string = this.formatVideoDuration(video.duration);
-            const thumbnail = video.thumbnails.high.url;
-            const track = {
-                url,
-                title,
-                duration,
-                thumbnail,
-                voiceChannel
-            };
+                // get video ID of top result of query
+                video = await this.youtube.getVideoByID(videoResult[0].id);
+            } catch (exception) { console.log(exception); msgObject.channel.send(`Received error from YouTube: ${exception}`); }
+        }
 
-            queue.push(track);
-            try {
-                if (this._isPlaying == false) {
-                    this._isPlaying = true;
-                    let embed: Discord.RichEmbed = new Discord.RichEmbed()
-                        .setTitle("Playing track")
-                        .setColor("#c4302b")
-                        .setThumbnail(queue[0].thumbnail)
-                        .setDescription(`${track.title} \n ${track.url}`)
-                        .addField("Track Duration: ", `${track.duration}`); 
-                    msgObject.channel.send(embed);
-                    return this.playTrack(queue, client);
-                } else if (this._isPlaying == true) {
-                    let embed: Discord.RichEmbed = new Discord.RichEmbed()
-                        .setTitle("Track added to queue")
-                        .setColor("#c4302b")
-                        .setThumbnail(track.thumbnail)
-                        .setDescription(`${track.title} added to queue \n ${track.url}`)
-                        .addField("Track Duration: ", `${track.duration}`); 
-                    return msgObject.channel.send(embed);
-                }
-            } catch (exception) { msgObject.channel.send(`Error playing track from bot: ${exception}`); }
+        track.title = video.title;
+        track.url = video.url;
+        track.duration = this.formatVideoDuration(video.duration);
+        track.thumbnail = video.thumbnails.high.url;
+        // track.voiceChannel = voiceChannel;
 
-        } catch (exception) { console.log(exception); msgObject.channel.send(`Received error from YouTube: ${exception}`); }
+        queue.push(track);
+        try {
+            if (this._isPlaying == false) {
+                let embed: Discord.RichEmbed = this.createPlayResponse(track);
+                this._isPlaying = true;
+                msgObject.channel.send(embed);
+                return this.playTrack(queue, client);
+            } else {
+                let embed: Discord.RichEmbed = this.createPlayResponse(track);
+                return msgObject.channel.send(embed);
+            }
+        } catch (exception) { msgObject.channel.send(`Error playing track from bot: ${exception}`); }
     }
 
     playTrack(queue: Array<any>, client: Discord.Client) {

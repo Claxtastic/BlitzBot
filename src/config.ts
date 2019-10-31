@@ -9,6 +9,7 @@ export let config = {
         "play",
         "skip",
         "volume",
-        "help"
+        "help",
+        "nowplaying"
     ]
 }

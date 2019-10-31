@@ -115,9 +115,9 @@ export default class play implements IBotCommand {
         track.url = video.url;
         track.duration = this.formatVideoDuration(video.duration);
         track.thumbnail = video.thumbnails.high.url;
-        // track.voiceChannel = voiceChannel;
 
         queue.push(track);
+        mediaData.queue = queue;
         try {
             if (this._isPlaying == false) {
                 let embed: Discord.RichEmbed = this.createPlayResponse(track);

@@ -10,7 +10,13 @@ export default class play implements IBotCommand {
     private readonly Youtube = require('simple-youtube-api');
 
     private readonly _command: string = "play";  
-    private readonly youtube = new this.Youtube(ConfigFile.config.youtubeToken)
+    private readonly _youtubeAPI = new this.Youtube(ConfigFile.config.youtubeToken)
+    private readonly _ytdlOptions = {
+        volume: 0.1,
+        quality: 'highestaudio',
+        highWaterMark: 1024 * 1024 * 10,
+        filter: 'audioonly'
+    };
     
     private _isPlaying: boolean = false;
 
@@ -94,7 +100,7 @@ export default class play implements IBotCommand {
                 // the youtube video /watch? ID
                 const id: string = queryParts[2].split(/[^0-9a-z_\-]/i)[0];
                 // youtube video object
-                video = await this.youtube.getVideoByID(id);
+                video = await this._youtubeAPI.getVideoByID(id);
             } catch (exception) { console.log(`Received error from YouTube: ${exception}`); }
         }
 
@@ -102,12 +108,12 @@ export default class play implements IBotCommand {
         else {
             try { 
                 // get one video (top result) from the search query
-                const videoResult: any[] = await this.youtube.searchVideos(query, 1);
+                const videoResult: any[] = await this._youtubeAPI.searchVideos(query, 1);
 
                 // TODO?: Make 2nd parm not soft coded, add if (videoResult > 1) 
 
                 // get video ID of top result of query
-                video = await this.youtube.getVideoByID(videoResult[0].id);
+                video = await this._youtubeAPI.getVideoByID(videoResult[0].id);
             } catch (exception) { console.log(exception); msgObject.channel.send(`Received error from YouTube: ${exception}`); }
         }
 
@@ -139,11 +145,8 @@ export default class play implements IBotCommand {
             .join().then((connection: Discord.VoiceConnection) => {
                 const dispatcher: Discord.StreamDispatcher = connection
                     .playStream(
-                        this.ytdl(queue[0].url, {
-                            volume: 0.1,
-                            quality: 'highestaudio',
-                            highWaterMark: 1024 * 1024 * 10
-                        })
+                        this.ytdl(queue[0].url, this._ytdlOptions),
+                        { seek: 0, volume: 1, bitrate: "auto" } 
                     )
                     .on("start", () => {
                         // save dispatcher so that it can be accessed by skip and other commands

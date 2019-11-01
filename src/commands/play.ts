@@ -76,7 +76,7 @@ export default class play implements IBotCommand {
 
         if (!voiceChannel) return msgObject.reply("You must join a voice channel before playing!");
 
-        let query: string = msgObject.content.split(ConfigFile.config.prefix + "play ")[1];
+        let query: string = params[0];
 
         const track = {
             title: "",
@@ -105,9 +105,11 @@ export default class play implements IBotCommand {
             } catch (exception) { console.log(`Received error from YouTube: ${exception}`); }
         }
 
-        // else play argument was a YouTube search term
+        // else play argument was a YouTube search query
         else {
-            try { 
+            try {
+                // take all the words of the search query and join them, reassign 'query'
+                query = params.join(" ");
                 // get one video (top result) from the search query
                 const videoResult: any[] = await this._youtubeAPI.searchVideos(query, 1);
 

@@ -4,6 +4,7 @@ import { mediaData } from "../index";
 import { IBotCommand } from "../api";
 
 export let queue = Array<any>();
+export const streamOptions = { seek: 0, volume: 1 };
 export default class play implements IBotCommand {
 
     private readonly ytdl = require('ytdl-core');
@@ -24,7 +25,7 @@ export default class play implements IBotCommand {
         return ["play", "Play a YouTube link or play the 1st result of a YouTube search."];
     }
 
-    isThisCommand(command: string): boolean {
+    isThisCommand(command: string): boolean { 
         return command === this._command;
     }
 
@@ -146,7 +147,7 @@ export default class play implements IBotCommand {
                 const dispatcher: Discord.StreamDispatcher = connection
                     .playStream(
                         this.ytdl(queue[0].url, this._ytdlOptions),
-                        { seek: 0, volume: 1, bitrate: "auto" } 
+                        streamOptions
                     )
                     .on("start", () => {
                         // save dispatcher so that it can be accessed by skip and other commands

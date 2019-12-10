@@ -10,9 +10,11 @@
   "license": "ISC",
   "dependencies": {
     "@types/node": "^12.7.12",
+    "@types/request-promise": "^4.1.45",
     "discord.js": "^11.5.1",
     "ffmpeg-binaries": "^4.0.0",
     "opusscript": "0.0.7",
+    "request": "^2.88.0",
     "request-promise": "^4.2.5",
     "simple-youtube-api": "^5.2.1",
     "ytdl-core": "^1.0.0"

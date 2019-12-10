@@ -6,7 +6,7 @@ export default class testCommand implements IBotCommand {
     private readonly _command = "testCommand";
 
     help(): string[] {
-        return ["testCommand", "Command used to test response from bot."];
+        return ["ping", "Pong."];
     }
 
     isThisCommand(command: string): boolean {
@@ -14,6 +14,6 @@ export default class testCommand implements IBotCommand {
     }
 
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
-        msgObject.channel.send("It's working");
+        msgObject.channel.send("Pong");
     }
 }

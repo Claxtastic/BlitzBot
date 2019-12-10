@@ -105,7 +105,7 @@ export default class play implements IBotCommand {
 
     createPlayResponse(track: any): Discord.RichEmbed {
         const embed: Discord.RichEmbed = new Discord.RichEmbed();
-        if (this._isPlaying == false) {
+        if (this._isPlaying === false) {
             embed.setTitle("Playing track")
         } else {
             embed.setTitle("Track added to queue")
@@ -180,7 +180,7 @@ export default class play implements IBotCommand {
         queue.push(track);
         mediaData.queue = queue;
         try {
-            if (this._isPlaying == false) {
+            if (this._isPlaying === false) {
                 let embed: Discord.RichEmbed = this.createPlayResponse(track);
                 this._isPlaying = true;
                 msgObject.channel.send(embed);

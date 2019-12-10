@@ -6,9 +6,8 @@ export default class skip implements IBotCommand {
 
     private readonly _command: string = "skip";
 
-    help(): string {
-        // throw new Error("Method not implemented.");
-        return "";
+    help(): string[] {
+        return ["skip", "Skip the currently playing track."];
     }    
     
     isThisCommand(command: string): boolean {
@@ -20,7 +19,7 @@ export default class skip implements IBotCommand {
             return msgObject.reply("No track is playing!");
         } else {
             mediaData.streamDispatcher.end("Track skipped with !skip");
-            return msgObject.channel.send("Track skipped!");
+            return msgObject.channel.send(":fast_forward: **Track skipped!**");
         }
     }
 }

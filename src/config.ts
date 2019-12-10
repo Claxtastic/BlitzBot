@@ -8,6 +8,9 @@ export let config = {
         "leave",
         "play",
         "skip",
-        "volume"
+        "volume",
+        "help",
+        "nowplaying",
+        "drop"
     ]
 }

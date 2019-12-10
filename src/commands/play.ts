@@ -158,7 +158,7 @@ export default class play implements IBotCommand {
                 const localTrack = this.getSoundcloudInfo(response, voiceChannel); 
                 return localTrack;
             })
-            .catch((err: any) => {
+            .catch((err: Error) => {
                 return console.log(err);
             });
         }
@@ -219,11 +219,11 @@ export default class play implements IBotCommand {
                             client.user.setPresence({ game: { name: "" } });
                         }
                     })
-                    .on('error', (e: any) => {
+                    .on('error', (e: Error) => {
                         return console.log(e);
                     });
             })
-            .catch((err: any) => {
+            .catch((err: Error) => {
                 return console.log(err);
             });
     }

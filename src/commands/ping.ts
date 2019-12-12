@@ -3,7 +3,7 @@ import { IBotCommand } from "../api";
 
 export default class testCommand implements IBotCommand {
 
-    private readonly _command = "testCommand";
+    private readonly _command = "ping";
 
     help(): string[] {
         return ["ping", "Pong."];

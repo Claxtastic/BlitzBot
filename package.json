@@ -8,11 +8,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc && node /dist/."
+    "start": "tsc && node ./dist/."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+  	"typescript": "^3.7.5",
     "@types/node": "^12.7.12",
     "@types/request-promise": "^4.1.45",
     "discord.js": "^11.5.1",

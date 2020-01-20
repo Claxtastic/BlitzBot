@@ -3,7 +3,7 @@ export let config = {
     "youtubeToken": "",
     "prefix": "!",
     "commands": [
-        "testCommand",
+        "ping",
         "join",
         "leave",
         "play",

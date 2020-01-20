@@ -26,7 +26,7 @@ export default class volume implements IBotCommand {
         }
 
         const volume: number = +params[0];
-        if (isNaN(volume) || volume == 0 || volume > 10) {
+        if (isNaN(volume) || volume === 0 || volume > 10) {
             embed
                 .setTitle("Invalid volume")
                 .setDescription("Enter a number 1 - 10.")

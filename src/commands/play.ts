@@ -105,7 +105,7 @@ export default class play implements IBotCommand {
 
     createPlayResponse(track: any): Discord.RichEmbed {
         const embed: Discord.RichEmbed = new Discord.RichEmbed();
-        if (this._isPlaying == false) {
+        if (this._isPlaying === false) {
             embed.setTitle("Playing track")
         } else {
             embed.setTitle("Track added to queue")
@@ -158,7 +158,7 @@ export default class play implements IBotCommand {
                 const localTrack = this.getSoundcloudInfo(response, voiceChannel); 
                 return localTrack;
             })
-            .catch((err: any) => {
+            .catch((err: Error) => {
                 return console.log(err);
             });
         }
@@ -180,7 +180,7 @@ export default class play implements IBotCommand {
         queue.push(track);
         mediaData.queue = queue;
         try {
-            if (this._isPlaying == false) {
+            if (this._isPlaying === false) {
                 let embed: Discord.RichEmbed = this.createPlayResponse(track);
                 this._isPlaying = true;
                 msgObject.channel.send(embed);
@@ -219,11 +219,11 @@ export default class play implements IBotCommand {
                             client.user.setPresence({ game: { name: "" } });
                         }
                     })
-                    .on('error', (e: any) => {
+                    .on('error', (e: Error) => {
                         return console.log(e);
                     });
             })
-            .catch((err: any) => {
+            .catch((err: Error) => {
                 return console.log(err);
             });
     }

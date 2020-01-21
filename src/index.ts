@@ -1,5 +1,6 @@
 import * as Discord from "discord.js";
 import * as ConfigFile from "./config";
+import * as dotenv from "dotenv";
 import { IBotCommand } from "./api";
 
 const client: Discord.Client = new Discord.Client();
@@ -51,7 +52,12 @@ async function handleCommand(msg: Discord.Message) {
 
 function loadCommands(commandsPath: string) {
 
-    if (!ConfigFile.config || (ConfigFile.config.commands as string[]).length === 0) return;
+    // if (!ConfigFile.config || (ConfigFile.config.commands as string[]).length === 0) return;
+
+    if (ConfigFile.config.discordToken === "" || ConfigFile.config.youtubeToken === "") {
+        ConfigFile.config.discordToken = process.env.discordToken as string;
+        ConfigFile.config.youtubeToken = process.env.youtubeToken as string;
+    }
 
     for (const commandName of ConfigFile.config.commands as string[]) {
         const commandsClass = require(`${commandsPath}/${commandName}`).default;
@@ -60,7 +66,7 @@ function loadCommands(commandsPath: string) {
     }
 }
 
-client.login(ConfigFile.config.token);
+client.login(ConfigFile.config.discordToken);
 
 client.on("disconnect", msg => {
     console.log("Disconnected and destroying client");

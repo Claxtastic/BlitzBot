@@ -1,5 +1,5 @@
 export let config = {
-    "token": "",
+    "discordToken": "",
     "youtubeToken": "",
     "prefix": "!",
     "commands": [

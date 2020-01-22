@@ -7,7 +7,8 @@
   "description": "A Discord music bot made with Discord.js!",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc && node ./dist/."
   },
   "author": "",
   "license": "ISC",
@@ -15,11 +16,13 @@
     "@types/node": "^12.7.12",
     "@types/request-promise": "^4.1.45",
     "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0",
     "ffmpeg-binaries": "^4.0.0",
     "opusscript": "0.0.7",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
     "simple-youtube-api": "^5.2.1",
+    "typescript": "^3.7.5",
     "ytdl-core": "^1.0.0"
   }
 }

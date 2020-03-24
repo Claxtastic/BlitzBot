@@ -1,7 +1,7 @@
 export let config = {
     "discordToken": "",
     "youtubeToken": "",
-    "prefix": "!",
+    "prefix": "?",
     "commands": [
         "ping",
         "join",

@@ -1,6 +1,5 @@
 import * as Discord from "discord.js";
 import * as ConfigFile from "./config";
-import * as dotenv from "dotenv";
 import { IBotCommand } from "./api";
 
 const client: Discord.Client = new Discord.Client();

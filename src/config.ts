@@ -11,6 +11,7 @@ export let config = {
         "volume",
         "help",
         "nowplaying",
-        "drop"
+        "drop",
+        "queue"
     ]
 }

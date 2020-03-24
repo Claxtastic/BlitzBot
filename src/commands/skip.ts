@@ -15,11 +15,16 @@ export default class skip implements IBotCommand {
     }
 
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
-        if (mediaData.streamDispatcher === undefined || mediaData === undefined) { 
-            return msgObject.reply("No track is playing!");
-        } else {
-            mediaData.streamDispatcher.end("Track skipped with !skip");
-            return msgObject.channel.send(":fast_forward: **Track skipped!**");
+        if (mediaData.queue != undefined) {
+            if (mediaData.queue.length === 0) { 
+                return msgObject.reply("No track is playing!");
+            }
+            if (mediaData.streamDispatcher != undefined) {
+                const copiedQueue: Array<any> = mediaData.queue.map(x => Object.assign({}, x));
+                let skippedTrack = copiedQueue.shift().title;
+                mediaData.streamDispatcher.end("Track skipped with !skip");
+                return msgObject.channel.send(`\`${skippedTrack}\` :fast_forward: **skipped!**`);
+            }
         }
     }
 }

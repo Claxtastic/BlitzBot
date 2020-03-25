@@ -1,5 +1,6 @@
 import * as Discord from "discord.js";
 import { IBotCommand } from "../api";
+import { mediaData } from "../index";
 
 export default class leave implements IBotCommand {
 
@@ -14,10 +15,12 @@ export default class leave implements IBotCommand {
     }
     
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
-        // TODO: Kill the queue and other cleanup
         if (msgObject.member.voiceChannel && msgObject.guild.voiceConnection) {
+            if (mediaData.streamDispatcher != undefined) {
+                mediaData.streamDispatcher.end("Received !leave command");
+            }
             msgObject.member.voiceChannel.leave();
-            msgObject.reply("Bye bye very nasty");
+            msgObject.react("👋");
         }
     }
 }

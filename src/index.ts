@@ -66,8 +66,3 @@ function loadCommands(commandsPath: string) {
 }
 
 client.login(ConfigFile.config.discordToken);
-
-client.on("disconnect", msg => {
-    console.log("Disconnected and destroying client");
-    client.destroy();
-});

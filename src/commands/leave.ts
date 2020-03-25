@@ -14,13 +14,13 @@ export default class leave implements IBotCommand {
         return command === this._command;
     }
     
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
+    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
         if (msgObject.member.voiceChannel && msgObject.guild.voiceConnection) {
             if (mediaData.streamDispatcher != undefined) {
                 mediaData.streamDispatcher.end("Received !leave command");
             }
             msgObject.member.voiceChannel.leave();
-            msgObject.react("👋");
+            return msgObject.react("👋");
         }
     }
 }

@@ -15,9 +15,7 @@ export default class join implements IBotCommand {
 
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
         if (msgObject.member.voiceChannel && !msgObject.guild.voiceConnection)
-            msgObject.member.voiceChannel.join()
-                .then(connection => {
-                    msgObject.reply("Joined");
-                });
+            msgObject.member.voiceChannel.join();
+            msgObject.react("🙋‍♂️");
     }
 }

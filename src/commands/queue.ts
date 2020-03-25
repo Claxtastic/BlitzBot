@@ -2,7 +2,7 @@ import * as Discord from "discord.js";
 import { IBotCommand } from "../api";
 import { mediaData } from "../index";
 
-export default class play implements IBotCommand {
+export default class queue implements IBotCommand {
 
     private readonly _command: string = "queue";
 

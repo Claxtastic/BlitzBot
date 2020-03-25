@@ -12,6 +12,9 @@ export let config = {
         "help",
         "nowplaying",
         "drop",
-        "queue"
+        "queue",
+        "pause",
+        "resume",
+        "restart"
     ]
 }

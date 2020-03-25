@@ -203,6 +203,9 @@ export default class play implements IBotCommand {
         
         queue[0].voiceChannel
             .join().then((connection: Discord.VoiceConnection) => {
+                connection.on("disconnect", () => {
+                    client.user.setPresence({ game: { name: "" } });
+                });
                 const dispatcher: Discord.StreamDispatcher = this.getStreamFunction(queue[0], connection)
                     .on("start", () => {
                         // save dispatcher so that it can be accessed by skip and other commands
@@ -219,7 +222,7 @@ export default class play implements IBotCommand {
                             client.user.setPresence({ game: { name: "" } });
                         }
                     })
-                    .on('error', (e: Error) => {
+                    .on("error", (e: Error) => {
                         return console.log(e);
                     });
             })

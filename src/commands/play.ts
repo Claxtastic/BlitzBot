@@ -214,8 +214,8 @@ export default class play implements IBotCommand {
                 }
             });
         },
-        // 1800000)
-        5000)
+        1800000)
+        // 5000)
     }
 
     endIdleTimeout() {

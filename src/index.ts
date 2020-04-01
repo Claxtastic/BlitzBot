@@ -9,8 +9,7 @@ let commands: IBotCommand[] = [];
 loadCommands(`${__dirname}/commands`);
 
 class MediaData {
-    public queue?: Array<any>;
-    public isPlaying?: boolean;
+    public queue?: Array<any>;;
     public streamDispatcher?: Discord.StreamDispatcher;
 }
 
@@ -19,7 +18,8 @@ export let mediaData = new MediaData();
 
 client.on("ready", () => {
     console.log("Ready to go");
-    client.user.setPresence({ game: { name: "" } });
+    if (client.user)
+        client.user.setPresence({ activity: { name: "" } });
 });
 
 /* Command Handler */
@@ -42,7 +42,8 @@ async function handleCommand(msg: Discord.Message) {
                 continue;
             }
 
-            await commandClass.executeCommand(args, msg, client);        
+            await commandClass.executeCommand(args, msg, client);
+            // commandClass.executeCommand(args, msg, client);      
         } catch (exception) {
             console.log(exception);
         }
@@ -50,8 +51,6 @@ async function handleCommand(msg: Discord.Message) {
 }
 
 function loadCommands(commandsPath: string) {
-
-    // if (!ConfigFile.config || (ConfigFile.config.commands as string[]).length === 0) return;
 
     if (ConfigFile.config.discordToken === "" || ConfigFile.config.youtubeToken === "") {
         ConfigFile.config.discordToken = process.env.discordToken as string;

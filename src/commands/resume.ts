@@ -15,9 +15,13 @@ export default class resume implements IBotCommand {
     }
 
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
-        if (mediaData.streamDispatcher != undefined) {
-            mediaData.streamDispatcher.resume();
-            return msgObject.react("▶");
+        if (mediaData.streamDispatcher != undefined && mediaData.queue != undefined) {
+            if (mediaData.queue.length >= 1) {
+                mediaData.streamDispatcher.resume();
+                return msgObject.react("▶");
+            } else {
+                return msgObject.reply("No track is playing!");
+            }
         }
     }
 }

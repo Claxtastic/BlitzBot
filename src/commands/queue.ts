@@ -22,9 +22,9 @@ export default class queue implements IBotCommand {
         }
     }
 
-    createQueueEmbed(queue: Array<any>): Discord.RichEmbed {
+    createQueueEmbed(queue: Array<any>): Discord.MessageEmbed {
         const copiedQueue: Array<any> = queue.map(x => Object.assign({}, x));
-        const embed: Discord.RichEmbed = new Discord.RichEmbed()
+        const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
                 .setTitle("Queue") 
                 .setColor("#d59363");
         let position: number = 1;

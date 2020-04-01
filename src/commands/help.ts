@@ -16,7 +16,7 @@ export default class help implements IBotCommand {
 
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
 
-        let embed: Discord.RichEmbed = new Discord.RichEmbed()
+        let embed: Discord.MessageEmbed = new Discord.MessageEmbed()
             .setTitle("**__BlitzBot Manual__**")
             .setColor("#d59363");
             

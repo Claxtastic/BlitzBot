@@ -24,7 +24,7 @@ export default class play implements IBotCommand {
     private _isPlaying: boolean = false;
 
     help(): string[] {
-        return ["play", "Play a YouTube link, the 1st result of a YouTube search, or a Soundcloud link"];
+        return ["play", "Play a YouTube link, the 1st result of a YouTube search, or a Soundcloud link."];
     }
 
     isThisCommand(command: string): boolean { 

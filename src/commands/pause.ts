@@ -7,7 +7,7 @@ export default class pause implements IBotCommand {
     private readonly _command: string = "pause";
 
     help(): string[] {
-        return ["pause", "Pauses the currently playing track"];
+        return ["pause", "Pauses the currently playing track."];
     }
 
     isThisCommand(command: string): boolean {

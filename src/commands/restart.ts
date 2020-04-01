@@ -7,7 +7,7 @@ export default class restart implements IBotCommand {
     private readonly _command: string = "restart";
 
     help(): string[] {
-        return ["restart", "Fully restart the bot (might resolve any connection/playback issues)"];
+        return ["restart", "Fully restart the bot (might resolve any connection/playback issues)."];
     }
 
     isThisCommand(command: string): boolean {

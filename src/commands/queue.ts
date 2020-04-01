@@ -7,7 +7,7 @@ export default class queue implements IBotCommand {
     private readonly _command: string = "queue";
 
     help(): string[] {
-        return ["queue", "Show the first 10 queued tracks"];
+        return ["queue", "Show the first 10 queued tracks."];
     }
 
     isThisCommand(command: string): boolean {

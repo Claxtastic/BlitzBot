@@ -7,7 +7,7 @@ export default class resume implements IBotCommand {
     private readonly _command: string = "resume";
 
     help(): string[] {
-        return ["resume", "Resume playing the current track"];
+        return ["resume", "Resume playing the current track."];
     }
 
     isThisCommand(command: string): boolean {

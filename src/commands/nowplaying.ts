@@ -15,14 +15,12 @@ export default class nowplaying implements IBotCommand {
     }
 
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
-        if (mediaData.queue === undefined || mediaData === undefined) { 
+        if ( mediaData === undefined || mediaData.queue === undefined || mediaData.queue[0] === undefined) { 
             return msgObject.reply("No track is playing!");
         } else { 
-            const track = mediaData.queue[0];
-            if (track === undefined) 
-                return msgObject.reply("No track isplaying!");
-            const embed: Discord.RichEmbed = new Discord.RichEmbed()
-                .setAuthor("Now Playing", client.user.avatarURL)
+            const track = mediaData.queue[0]; 
+            const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
+                .setAuthor("Now Playing", client?.user?.displayAvatarURL())
                 .setTitle(track.title)
                 .setURL(track.url)
                 .setThumbnail(track.thumbnail)

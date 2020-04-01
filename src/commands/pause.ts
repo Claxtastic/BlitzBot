@@ -7,7 +7,7 @@ export default class pause implements IBotCommand {
     private readonly _command: string = "pause";
 
     help(): string[] {
-        return ["pause", "Pauses the currently playing track"];
+        return ["pause", "Pauses the currently playing track."];
     }
 
     isThisCommand(command: string): boolean {
@@ -15,9 +15,13 @@ export default class pause implements IBotCommand {
     }
 
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
-        if (mediaData.streamDispatcher != undefined) {
-            mediaData.streamDispatcher.pause();
-            return msgObject.react("⏸");
+        if (mediaData.streamDispatcher != undefined && mediaData.queue != undefined) {
+            if (mediaData.queue.length >= 1) {
+                mediaData.streamDispatcher.pause();
+                return msgObject.react("⏸");
+            } else {
+                return msgObject.reply("No track is playing!");
+            }
         }
     }
 }

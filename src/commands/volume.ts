@@ -16,7 +16,7 @@ export default class volume implements IBotCommand {
     
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
 
-        const embed: Discord.RichEmbed = new Discord.RichEmbed();
+        const embed: Discord.MessageEmbed = new Discord.MessageEmbed();
         if (params.length < 1) {
             embed
                 .setTitle("Current volume")

@@ -1,8 +1,8 @@
 {
   "name": "blitzbot",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "engines": {
-    "node": "10.16.3"
+    "node": "12.16.1"
   },
   "description": "A Discord music bot made with Discord.js!",
   "main": "index.js",
@@ -17,16 +17,14 @@
   },
   "license": "ISC",
   "dependencies": {
-    "@discordjs/uws": "^10.149.0",
     "@types/request-promise": "^4.1.46",
-    "bufferutil": "^4.0.0",
-    "discord.js": "^11.6.3",
-    "erlpack": "github:discordapp/erlpack",
-    "ffmpeg-static": "^4.0.1",
-    "libsodium-wrappers": "^0.7.3",
-    "opusscript": "0.0.7",
-    "request": "^2.88.0",
+    "@types/ws": "^7.2.3",
+    "@discordjs/opus": "^0.1.0",
     "request-promise": "^4.2.5",
+    "bufferutil": "^4.0.1",
+    "discord.js": "^12.1.1",
+    "erlpack": "github:discordapp/erlpack",
+    "libsodium-wrappers": "^0.7.6",
     "simple-youtube-api": "^5.2.1",
     "windows-build-tools": "^5.2.2",
     "ytdl-core": "^1.0.0"

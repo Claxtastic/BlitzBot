@@ -21,9 +21,9 @@ export default class skip implements IBotCommand {
             }
             if (mediaData.streamDispatcher != undefined) {
                 const copiedQueue: Array<any> = mediaData.queue.map(x => Object.assign({}, x));
-                let skippedTrack = copiedQueue.shift().title;
-                mediaData.streamDispatcher.end("Track skipped with !skip");
-                client.user.setPresence({ game: { name: "" } });
+                let skippedTrack: string = copiedQueue.shift().title;
+                mediaData.streamDispatcher.end();
+                client?.user?.setPresence({ activity: { name: "" } });
                 return msgObject.channel.send(`\`${skippedTrack}\` :fast_forward: **skipped!**`);
             }
         }

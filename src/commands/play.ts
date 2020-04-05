@@ -197,9 +197,9 @@ export default class play implements IBotCommand {
         } catch (exception) { msgObject.channel.send(`Error playing track from bot: ${exception}`); }
     }
 
-    getPlayFunction(track: any, connection: Discord.VoiceConnection)  {
+    async getPlayFunction(track: any, connection: Discord.VoiceConnection)  {
         return track.type === "youtube"
-            ? connection.play(this.ytdl(queue[0].url, this._ytdlOptions), streamOptions)
+            ? connection.play(await this.ytdl(queue[0].url, this._ytdlOptions), streamOptions)
             : connection.play(track.streamUrl, streamOptions)
     }
 
@@ -214,8 +214,8 @@ export default class play implements IBotCommand {
                 }
             });
         },
-        // 1800000)
-        5000)
+        // 5000)
+        900000)
     }
 
     endIdleTimeout() {
@@ -226,11 +226,11 @@ export default class play implements IBotCommand {
         let voiceChannel: Discord.VoiceChannel;
         
         queue[0].voiceChannel
-            .join().then((connection: Discord.VoiceConnection) => {
+            .join().then(async (connection: Discord.VoiceConnection) => {
                 connection.on("disconnect", () => {
                     client?.user?.setPresence({ activity: { name: "" } });
                 });
-                const dispatcher: Discord.StreamDispatcher = this.getPlayFunction(queue[0], connection)
+                const dispatcher: Discord.StreamDispatcher = (await this.getPlayFunction(queue[0], connection))
                     .on("start", () => {
                         this.endIdleTimeout();
                         // save dispatcher so that it can be accessed by skip and other commands

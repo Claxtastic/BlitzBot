@@ -14,14 +14,11 @@ export default class play implements IBotCommand {
     private readonly _command: string = "play";  
     private readonly _youtubeAPI = new this.Youtube(ConfigFile.config.youtubeToken)
     private readonly _soundcloudToken: string = "71dfa98f05fa01cb3ded3265b9672aaf";
-    private readonly _ytdlOptions = {
-        volume: 0.1,
-        quality: 'highestaudio',
-        highWaterMark: 1024 * 1024 * 10,
-        filter: 'audioonly'
-    };
-
+    private readonly _highWaterMarkLong: number = 1;
+    private readonly _highWaterMarkShort: number = 1 << 25;
+    
     private _idleTimer: any;
+    private _textChannel: Discord.TextChannel | undefined;
     
     help(): string[] {
         return ["play", "Play a YouTube link, the 1st result of a YouTube search, or a Soundcloud link."];
@@ -36,6 +33,7 @@ export default class play implements IBotCommand {
             title: youtubeVideo.title,
             url: youtubeVideo.url,
             duration: this.formatVideoDuration(youtubeVideo.duration),
+            durationMs: youtubeVideo.duration,
             thumbnail: youtubeVideo.thumbnails.high.url,
             voiceChannel: voiceChannel,
             type: "youtube"
@@ -48,6 +46,7 @@ export default class play implements IBotCommand {
             streamUrl: "http://api.soundcloud.com/tracks/" + soundcloudTrack.id + "/stream?consumer_key=71dfa98f05fa01cb3ded3265b9672aaf",
             url: soundcloudTrack.permalink_url,
             duration: this.formatSoundcloudDuration(soundcloudTrack.duration),
+            durationMs: soundcloudTrack.duration,
             thumbnail: soundcloudTrack.user.avatar_url,
             voiceChannel: voiceChannel,
             type: "soundcloud"
@@ -127,7 +126,8 @@ export default class play implements IBotCommand {
         }
         
         let voiceChannel: Discord.VoiceChannel = msgObject.member.voice.channel;
-
+        // save the text channel in case we have to send any errors
+        this._textChannel = msgObject.channel as Discord.TextChannel;
         let query: string = params[0];
         
         // the response from Youtube or Soundcloud
@@ -198,9 +198,15 @@ export default class play implements IBotCommand {
     }
 
     async getPlayFunction(track: any, connection: Discord.VoiceConnection)  {
-        return track.type === "youtube"
-            ? connection.play(await this.ytdl(queue[0].url, this._ytdlOptions), streamOptions)
-            : connection.play(track.streamUrl, streamOptions)
+        if (track.type === "youtube") {
+            let highWaterMark: number;
+            // use a lower highWaterMark if the video is >= 45 min
+            track.durationMs >= 2700000 ? highWaterMark = this._highWaterMarkLong : highWaterMark = this._highWaterMarkShort;
+            console.log("Using smaller watermark...");
+            return connection.play(await this.ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark }), streamOptions)
+        } else {
+            return connection.play(track.streamUrl, streamOptions);
+        }
     }
 
     startIdleTimeout(client: Discord.Client, voiceChannel: Discord.VoiceChannel) {
@@ -227,9 +233,6 @@ export default class play implements IBotCommand {
         
         queue[0].voiceChannel
             .join().then(async (connection: Discord.VoiceConnection) => {
-                connection.on("disconnect", () => {
-                    client?.user?.setPresence({ activity: { name: "" } });
-                });
                 const dispatcher: Discord.StreamDispatcher = (await this.getPlayFunction(queue[0], connection))
                     .on("start", () => {
                         this.endIdleTimeout();
@@ -240,20 +243,20 @@ export default class play implements IBotCommand {
                     })
                     .on("finish", () => {
                         queue.shift();
+                        client?.user?.setPresence({ activity: { name: "" } });
                         if (queue.length >= 1) {
                             console.log("Playing next track");
                             return this.playTrack(queue, client);
                         } else {
-                            client?.user?.setPresence({ activity: { name: "" } });
                             this.startIdleTimeout(client, voiceChannel);
                         }
                     })
                     .on("error", (e: Error) => {
+                        // graceful recovery; skip the erroring track
+                        this._textChannel?.send(`Error playing the track \`${queue[0].title}\` \nThis could be an error with the source track, but it might be worth trying again\nVerbose error: \`\`\`${e}\`\`\``);
+                        dispatcher.end();
                         return console.log(e);
                     });
             })
-            .catch((err: Error) => {
-                return console.log(err);
-            });
     }
 }

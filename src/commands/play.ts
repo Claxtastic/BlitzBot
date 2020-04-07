@@ -148,7 +148,6 @@ export default class play implements IBotCommand {
                 const id: string = queryParts[2].split(/[^0-9a-z_\-]/i)[0];
                 // youtube video object
                 response = await this._youtubeAPI.getVideoByID(id);
-                // response = this._youtubeAPI.getVideoByID(id);
                 track = this.getYoutubeInfo(response, voiceChannel);
             } catch (exception) { console.log(`Received error from YouTube: ${exception}`); }
         }
@@ -156,7 +155,6 @@ export default class play implements IBotCommand {
         // if query is a Soundcloud URL
         else if (query.match(/^(http(s)?:\/\/)?((w){3}.)?soundcloud(\.com)?\/.+/)) {
             track = await get("http://api.soundcloud.com/resolve.json?url=" + query + "&client_id=" + this._soundcloudToken)
-            // track = get("http://api.soundcloud.com/resolve.json?url=" + query + "&client_id=" + this._soundcloudToken)
             .then(body => {
                 response = JSON.parse(body);
                 const localTrack = this.getSoundcloudInfo(response, voiceChannel); 
@@ -174,11 +172,9 @@ export default class play implements IBotCommand {
                 query = params.join(" ");
                 // get one video (top result) from the search query
                 const videoResult: any[] = await this._youtubeAPI.searchVideos(query, 1); 
-                // const videoResult: any[] = this._youtubeAPI.searchVideos(query, 1);
 
                 // get video ID of top result of query
                 response = await this._youtubeAPI.getVideoByID(videoResult[0].id);
-                // response = this._youtubeAPI.getVideoByID(videoResult[0].id);
                 track = this.getYoutubeInfo(response, voiceChannel);
             } catch (exception) { console.log(exception); msgObject.channel.send(`Received error from YouTube: ${exception}`); }
         }

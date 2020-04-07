@@ -202,7 +202,6 @@ export default class play implements IBotCommand {
             let highWaterMark: number;
             // use a lower highWaterMark if the video is >= 45 min
             track.durationMs >= 2700000 ? highWaterMark = this._highWaterMarkLong : highWaterMark = this._highWaterMarkShort;
-            console.log("Using smaller watermark...");
             return connection.play(await this.ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark }), streamOptions)
         } else {
             return connection.play(track.streamUrl, streamOptions);

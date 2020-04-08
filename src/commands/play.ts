@@ -5,7 +5,7 @@ import { mediaData } from "../index";
 import { IBotCommand } from "../api";
 
 export let queue = Array<any>();
-export const streamOptions = { seek: 0, volume: 1 };
+export const streamOptions = { seek: 0 };
 export default class play implements IBotCommand {
 
     private readonly ytdl = require('ytdl-core');
@@ -148,7 +148,6 @@ export default class play implements IBotCommand {
                 const id: string = queryParts[2].split(/[^0-9a-z_\-]/i)[0];
                 // youtube video object
                 response = await this._youtubeAPI.getVideoByID(id);
-                // response = this._youtubeAPI.getVideoByID(id);
                 track = this.getYoutubeInfo(response, voiceChannel);
             } catch (exception) { console.log(`Received error from YouTube: ${exception}`); }
         }
@@ -156,7 +155,6 @@ export default class play implements IBotCommand {
         // if query is a Soundcloud URL
         else if (query.match(/^(http(s)?:\/\/)?((w){3}.)?soundcloud(\.com)?\/.+/)) {
             track = await get("http://api.soundcloud.com/resolve.json?url=" + query + "&client_id=" + this._soundcloudToken)
-            // track = get("http://api.soundcloud.com/resolve.json?url=" + query + "&client_id=" + this._soundcloudToken)
             .then(body => {
                 response = JSON.parse(body);
                 const localTrack = this.getSoundcloudInfo(response, voiceChannel); 
@@ -174,11 +172,9 @@ export default class play implements IBotCommand {
                 query = params.join(" ");
                 // get one video (top result) from the search query
                 const videoResult: any[] = await this._youtubeAPI.searchVideos(query, 1); 
-                // const videoResult: any[] = this._youtubeAPI.searchVideos(query, 1);
 
                 // get video ID of top result of query
                 response = await this._youtubeAPI.getVideoByID(videoResult[0].id);
-                // response = this._youtubeAPI.getVideoByID(videoResult[0].id);
                 track = this.getYoutubeInfo(response, voiceChannel);
             } catch (exception) { console.log(exception); msgObject.channel.send(`Received error from YouTube: ${exception}`); }
         }
@@ -202,10 +198,11 @@ export default class play implements IBotCommand {
             let highWaterMark: number;
             // use a lower highWaterMark if the video is >= 45 min
             track.durationMs >= 2700000 ? highWaterMark = this._highWaterMarkLong : highWaterMark = this._highWaterMarkShort;
-            console.log("Using smaller watermark...");
-            return connection.play(await this.ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark }), streamOptions)
+            // return connection.play(await this.ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark }), streamOptions);
+            return connection.play(await this.ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark }));
         } else {
-            return connection.play(track.streamUrl, streamOptions);
+            // return connection.play(track.streamUrl, streamOptions);
+            return connection.play(track.streamUrl)
         }
     }
 
@@ -236,6 +233,7 @@ export default class play implements IBotCommand {
                 const dispatcher: Discord.StreamDispatcher = (await this.getPlayFunction(queue[0], connection))
                     .on("start", () => {
                         this.endIdleTimeout();
+                        dispatcher.setVolume(ConfigFile.config.volume);
                         // save dispatcher so that it can be accessed by skip and other commands
                         mediaData.streamDispatcher = dispatcher;
                         voiceChannel = queue[0].voiceChannel;
@@ -251,6 +249,9 @@ export default class play implements IBotCommand {
                             this.startIdleTimeout(client, voiceChannel);
                         }
                     })
+                    // .on("volumeChange", (oldVolume: number, newVolume: number) => {
+                    //     console.log("Volume changed");
+                    // })
                     .on("error", (e: Error) => {
                         // graceful recovery; skip the erroring track
                         this._textChannel?.send(`Error playing the track \`${queue[0].title}\` \nThis could be an error with the source track, but it might be worth trying again\nVerbose error: \`\`\`${e}\`\`\``);

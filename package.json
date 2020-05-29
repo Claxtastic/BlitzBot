@@ -28,5 +28,9 @@
     "simple-youtube-api": "^5.2.1",
     "windows-build-tools": "^5.2.2",
     "ytdl-core-discord": "^1.2.0"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.10.1",
+    "jest": "^26.0.1"
   }
 }

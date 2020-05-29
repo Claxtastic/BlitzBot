@@ -181,13 +181,13 @@ export default class play implements IBotCommand {
 
         queue.push(track);
         mediaData.queue = queue;
+        
         try {
+            let embed: Discord.MessageEmbed = this.createPlayResponse(track);
             if (mediaData.queue.length === 1) {
-                let embed: Discord.MessageEmbed = this.createPlayResponse(track);
                 msgObject.channel.send(embed);
                 return this.playTrack(queue, client);
             } else {
-                let embed: Discord.MessageEmbed = this.createPlayResponse(track);
                 return msgObject.channel.send(embed);
             }
         } catch (exception) { msgObject.channel.send(`Error playing track from bot: ${exception}`); }
@@ -198,16 +198,14 @@ export default class play implements IBotCommand {
             let highWaterMark: number;
             // use a lower highWaterMark if the video is >= 45 min
             track.durationMs >= 2700000 ? highWaterMark = this._highWaterMarkLong : highWaterMark = this._highWaterMarkShort;
-            // return connection.play(await this.ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark }), streamOptions);
             return connection.play(await this.ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark }));
         } else {
-            // return connection.play(track.streamUrl, streamOptions);
             return connection.play(track.streamUrl)
         }
     }
 
     startIdleTimeout(client: Discord.Client, voiceChannel: Discord.VoiceChannel) {
-        console.log("starting sleep ... ");
+        console.log("Starting sleep ... ");
         this._idleTimer = setTimeout(() => 
         {
             client.voice?.connections.forEach(connection => {
@@ -217,7 +215,6 @@ export default class play implements IBotCommand {
                 }
             });
         },
-        // 5000)
         900000)
     }
 
@@ -249,13 +246,10 @@ export default class play implements IBotCommand {
                             this.startIdleTimeout(client, voiceChannel);
                         }
                     })
-                    // .on("volumeChange", (oldVolume: number, newVolume: number) => {
-                    //     console.log("Volume changed");
-                    // })
                     .on("error", (e: Error) => {
                         // graceful recovery; skip the erroring track
                         this._textChannel?.send(`Error playing the track \`${queue[0].title}\` \nThis could be an error with the source track, but it might be worth trying again\nVerbose error: \`\`\`${e}\`\`\``);
-                        dispatcher.end();
+                        mediaData?.streamDispatcher?.end();
                         return console.log(e);
                     });
             })

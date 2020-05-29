@@ -1,6 +1,6 @@
 {
   "name": "blitzbot",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "engines": {
     "node": "12.16.1"
   },
@@ -17,16 +17,16 @@
   },
   "license": "ISC",
   "dependencies": {
-    "@discordjs/opus": "^0.1.0",
+    "@discordjs/opus": "^0.3.2",
     "@types/request-promise": "^4.1.46",
     "@types/ws": "^7.2.3",
     "bufferutil": "^4.0.1",
-    "discord.js": "^12.1.1",
+    "discord.js": "^12.2.0",
     "erlpack": "github:discordapp/erlpack",
     "libsodium-wrappers": "^0.7.6",
     "request-promise": "^4.2.5",
     "simple-youtube-api": "^5.2.1",
     "windows-build-tools": "^5.2.2",
-    "ytdl-core-discord": "^1.1.0"
+    "ytdl-core-discord": "^1.2.0"
   }
 }

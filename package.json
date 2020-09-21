@@ -2,7 +2,7 @@
   "name": "blitzbot",
   "version": "1.2.1",
   "engines": {
-    "node": "12.16.1"
+    "node": "12.18.2"
   },
   "description": "A Discord music bot made with Discord.js!",
   "main": "index.js",
@@ -11,10 +11,7 @@
     "start": "tsc && node ./dist/."
   },
   "author": "claxtastic",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Claxtastic/BlitzBot"
-  },
+  "repository": "https://github.com/Claxtastic/BlitzBot",
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
@@ -27,6 +24,7 @@
     "request-promise": "^4.2.5",
     "simple-youtube-api": "^5.2.1",
     "windows-build-tools": "^5.2.2",
+    "yarn": "^1.22.4",
     "ytdl-core-discord": "^1.2.0"
   }
 }

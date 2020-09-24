@@ -27,7 +27,7 @@ export default class queue implements IBotCommand {
         const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
                 .setTitle("Queue") 
                 .setColor("#d59363");
-        let position: number = 1;
+        let position = 1;
         copiedQueue.forEach(track => {
             embed.addField(position, `\`\`\`${track.title}\`\`\``, true);
             position++;

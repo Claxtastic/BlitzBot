@@ -67,8 +67,8 @@ export default class volume implements IBotCommand {
     badInput(embed: Discord.MessageEmbed) {
         embed
             .setTitle("Invalid volume")
-            .addField("\`volume x\`", "Set the volume of the current track between 0.1 and 2.")
-            .addField("\`volume default x\`", "Set the default volume for all tracks between 0.1 and 2.")
+            .addField("`volume x`", "Set the volume of the current track between 0.1 and 2.")
+            .addField("`volume default x`", "Set the default volume for all tracks between 0.1 and 2.")
             .setColor("#d59363");
         return embed;
     }

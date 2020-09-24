@@ -13,8 +13,8 @@ export default class drop implements IBotCommand {
         return command === this._command;
     }
 
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
-
+    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
+        
         // let voiceChannel: Discord.VoiceChannel = msgObject.member.voiceChannel;
     }
 }

@@ -1,5 +1,3 @@
-import { DiscordAPIError } from "discord.js";
-
 import * as Discord from "discord.js"
 
 export interface Track {

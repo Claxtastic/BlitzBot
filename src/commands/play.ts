@@ -7,7 +7,7 @@ import { Track } from "../model/Track"
 import { SoundcloudTrack } from "../model/SoundcloudTrack"
 import { YoutubeTrack } from "../model/YoutubeTrack"
 
-export let queue = Array<Track>()
+export const queue = Array<Track>()
 export const streamOptions = { seek: 0 }
 export default class play implements IBotCommand {
 
@@ -21,7 +21,7 @@ export default class play implements IBotCommand {
     private readonly highWaterMarkLong: number = 1
     private readonly highWaterMarkShort: number = 1 << 25
     
-    private idleTimer: any
+    private idleTimer: NodeJS.Timeout
     private textChannel: Discord.TextChannel | undefined
     
     help(): string[] {
@@ -32,8 +32,8 @@ export default class play implements IBotCommand {
         return command === this.command
     }
 
-    formatVideoDuration(durationObject: any): string {
-        let hoursBit: string = ""
+    formatVideoDuration(durationObject: { hours: number; minutes: string | number; seconds: string | number }): string {
+        let hoursBit = ""
         // if video is hours long, include if video hours < 10, add leading zero
         // else, video is not hours long, empty string
         if (durationObject.hours) {
@@ -60,7 +60,7 @@ export default class play implements IBotCommand {
         const hours: number = Math.floor(((ms / (1000*60*60)) % 24))
         const minutes: number = Math.floor(((ms / (1000*60)) % 60))
         const seconds: number = Math.floor((ms / 1000) % 60)
-        let hoursBit: string = ""
+        let hoursBit = ""
         if (hours > 0) {
             hoursBit = `${hours}:`
             if (hours < 10) {
@@ -112,7 +112,7 @@ export default class play implements IBotCommand {
         if (!msgObject.member?.voice || !msgObject.member.voice.channel) {
             return msgObject.reply("You must join a voice channel before playing!")
         }
-        let voiceChannel: Discord.VoiceChannel = msgObject.member.voice.channel
+        const voiceChannel: Discord.VoiceChannel = msgObject.member.voice.channel
         // save the text channel in case we have to send any errors
         this.textChannel = msgObject.channel as Discord.TextChannel
 
@@ -144,12 +144,13 @@ export default class play implements IBotCommand {
             // else query is Single Youtube URL
             else {
                 const url: string = query
-                let queryParts: string[] = query
+                const queryParts: string[] = query
                     .replace(/(>|<)/gi, '')
                     .split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/)
 
                 // the youtube video /watch? ID
-                const id: string = queryParts[2].split(/[^0-9a-z_\-]/i)[0]
+                // const id: string = queryParts[2].split(/[^0-9a-z_\-]/i)[0]
+                const id: string = queryParts[2].split(/[^0-9a-z_-]/i)[0]
 
                 track = await this.handleYoutubeUrl(id, voiceChannel)
             }
@@ -169,7 +170,7 @@ export default class play implements IBotCommand {
         mediaData.queue = queue
         
         try {
-            let embed: Discord.MessageEmbed = this.createPlayResponse(track)
+            const embed: Discord.MessageEmbed = this.createPlayResponse(track)
             if (mediaData.queue.length === 1) {
                 msgObject.channel.send(embed)
                 return this.playTrack(queue, client)
@@ -228,7 +229,7 @@ export default class play implements IBotCommand {
     async handleSoundcloudTrack(query: string, voiceChannel: Discord.VoiceChannel): Promise<Track> {
         return await get("http://api.soundcloud.com/resolve.json?url=" + query + "&client_id=" + this.soundcloudToken)
             .then(body => {
-                let response = JSON.parse(body)
+                const response = JSON.parse(body)
                 return {
                     url: response.permalink_url,
                     title: response.title,
@@ -294,7 +295,7 @@ export default class play implements IBotCommand {
                     })
                     .on("error", (e: Error) => {
                         // send an embed with the error
-                        let embed: Discord.MessageEmbed = this.createErrorResponse(queue[0], e)
+                        const embed: Discord.MessageEmbed = this.createErrorResponse(queue[0], e)
                         this.textChannel.send(embed)
                         console.log(`ERROR playing track: ${e}`)
                         // graceful recovery, start next track or timeout

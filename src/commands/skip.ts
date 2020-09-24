@@ -21,7 +21,7 @@ export default class skip implements IBotCommand {
             }
             if (mediaData.streamDispatcher != undefined) {
                 const copiedQueue: Array<any> = mediaData.queue.map(track => Object.assign({}, track));
-                let skippedTrack: string = copiedQueue.shift().title;
+                const skippedTrack: string = copiedQueue.shift().title;
                 // this is silly, but for some reason a paused track won't be skipped without it.
                 mediaData.streamDispatcher.resume();
                 mediaData.streamDispatcher.end();

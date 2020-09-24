@@ -5,7 +5,7 @@ import { Track } from "./model/Track"
 
 const client: Discord.Client = new Discord.Client()
 
-let commands: IBotCommand[] = []
+const commands: IBotCommand[] = []
 
 loadCommands(`${__dirname}/commands`)
 
@@ -15,7 +15,7 @@ class MediaData {
 }
 
 // properties will be assigned once a queue has began from the play command
-export let mediaData = new MediaData()
+export const mediaData = new MediaData()
 
 client.on("ready", () => {
     console.log("Ready to go")
@@ -32,10 +32,10 @@ client.on("message", msg => {
 })
 
 async function handleCommand(msg: Discord.Message) {
-    let command = msg.content.split(" ")[0].replace(ConfigFile.config.prefix, "")
+    const command = msg.content.split(" ")[0].replace(ConfigFile.config.prefix, "")
     
     // everything after prefix
-    let args = msg.content.split(" ").slice(1)
+    const args = msg.content.split(" ").slice(1)
 
     for (const commandClass of commands) {
         try {

@@ -97,6 +97,17 @@ export default class play implements IBotCommand {
         return embed
     }
 
+    createErrorResponse(track: Track, e: Error): Discord.MessageEmbed {
+        const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
+        embed
+            .setTitle(`${track.title} was unable to be played.`)
+            .setColor("#ff0000")
+            .setDescription(`This could be unavoidable due to copyright or other restrictions, but it doesn't hurt to try again.`)
+            .addField("Verbose error: ", `\`\`\`${e}\`\`\``)
+            .setFooter(`The time of man has come to an end.`)
+        return embed
+    }
+
     async executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
         if (!msgObject.member?.voice || !msgObject.member.voice.channel) {
             return msgObject.reply("You must join a voice channel before playing!")
@@ -240,9 +251,7 @@ export default class play implements IBotCommand {
             let highWaterMark: number
             // use a lower highWaterMark if the video is >= 45 min
             track.durationMs >= 2700000 ? highWaterMark = this.highWaterMarkLong : highWaterMark = this.highWaterMarkShort
-            const playFunction = await this.ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark })
-            return connection.play(playFunction)
-    
+            return connection.play(await this.ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark }))
         } else if (track.type === "soundcloud") {
             return connection.play((track as SoundcloudTrack).streamUrl)
         }
@@ -266,7 +275,7 @@ export default class play implements IBotCommand {
         clearTimeout(this.idleTimer)
     }
 
- playTrack(queue: Array<Track>, client: Discord.Client) {
+    playTrack(queue: Array<Track>, client: Discord.Client) {
         let voiceChannel: Discord.VoiceChannel
         
         queue[0].voiceChannel
@@ -281,21 +290,28 @@ export default class play implements IBotCommand {
                         client?.user?.setPresence({ activity: { name: queue[0].title } })
                     })
                     .on("finish", () => {
-                        queue.shift()
-                        client?.user?.setPresence({ activity: { name: "" } })
-                        if (queue.length >= 1) {
-                            console.log("Playing next track")
-                            return this.playTrack(queue, client)
-                        } else {
-                            this.startIdleTimeout(client, voiceChannel)
-                        }
+                        this.playNextTrackOrStartTimeout(queue, client, voiceChannel)
                     })
                     .on("error", (e: Error) => {
-                        // graceful recovery skip the erroring track
-                        this.textChannel?.send(`Error playing the track \`${queue[0].title}\` \nThis could be an error with the source track, but it might be worth trying again\nVerbose error: \`\`\`${e}\`\`\``)
-                        mediaData?.streamDispatcher?.end()
-                        return Promise.reject(e)
+                        // send an embed with the error
+                        let embed: Discord.MessageEmbed = this.createErrorResponse(queue[0], e)
+                        this.textChannel.send(embed)
+                        console.log(`ERROR playing track: ${e}`)
+                        // graceful recovery, start next track or timeout
+                        this.playNextTrackOrStartTimeout(queue, client, voiceChannel)
                     })
             })
+    }
+
+    playNextTrackOrStartTimeout(queue: Array<Track>, client: Discord.Client, voiceChannel: Discord.VoiceChannel) {
+        queue.shift()
+        mediaData?.streamDispatcher?.end()
+        client?.user?.setPresence({ activity: { name: "" } })
+        if (queue.length >= 1) {
+            console.log("Playing next track")
+            this.playTrack(queue, client)
+        } else {
+            this.startIdleTimeout(client, voiceChannel)
+        }
     }
 }

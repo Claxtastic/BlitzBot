@@ -26,5 +26,11 @@
     "windows-build-tools": "^5.2.2",
     "yarn": "^1.22.4",
     "ytdl-core-discord": "^1.2.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.2.0",
+    "@typescript-eslint/parser": "^4.2.0",
+    "eslint": "^7.9.0",
+    "typescript": "^4.0.3"
   }
 }

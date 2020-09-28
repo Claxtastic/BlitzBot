@@ -1,31 +1,50 @@
 import * as Discord from "discord.js";
 import { IBotCommand } from "../api";
-import { mediaData } from "../index";
+import { mediaData, log } from "../index";
+import { Track } from "../model/Track";
 
 export default class skip implements IBotCommand {
 
     private readonly _command: string = "skip";
 
     help(): string[] {
-        return ["skip", "Skip the currently playing track."];
+        return ["skip", "Skip the currently playing track, all tracks, or add a number to skip the next x tracks."];
     }    
     
     isThisCommand(command: string): boolean {
         return command === this._command;
     }
 
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
+    executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
         if (mediaData.queue != undefined) {
             if (mediaData.queue.length === 0) { 
-                return msgObject.reply("No track is playing!");
+                return message.reply("No track is playing!");
             }
             if (mediaData.streamDispatcher != undefined) {
-                const copiedQueue: Array<any> = mediaData.queue.map(track => Object.assign({}, track));
-                let skippedTrack: string = copiedQueue.shift().title;
-                // this is silly, but for some reason a paused track won't be skipped without it.
-                mediaData.streamDispatcher.resume();
-                mediaData.streamDispatcher.end();
-                return msgObject.channel.send(`\`${skippedTrack}\` :fast_forward: **skipped!**`);
+                if (params[0]) {
+                    if (params[0] === "all") {
+                        const numberOfTracksToSkip: number = mediaData.queue.length
+                        log.info(`Skipping all tracks (${numberOfTracksToSkip})`)
+                        for (var i = 0; i < numberOfTracksToSkip; i++) {
+                            mediaData.queue.shift()
+                            mediaData.streamDispatcher.end()
+                        }
+                        return message.channel.send(`**Skipped all tracks in queue!** :fast_forward:`)
+                    }
+                    else if (parseInt(params[0]) != undefined) {
+                        log.info(`Skipping next ${params[0]} tracks`)
+                        for (var i = 0; i < parseInt(params[0])-1; i++) {
+                            mediaData.queue.shift()
+                            mediaData.streamDispatcher.end()
+                        }
+                        return message.channel.send(`**Skipped ${params[0]} tracks!** :fast_forward:`)
+                    }
+                } else {
+                    const copiedQueue: Array<Track> = mediaData.queue.map(track => Object.assign({}, track));
+                    const skippedTrack: string = copiedQueue.shift().title;
+                    mediaData.streamDispatcher.end();
+                    return message.channel.send(`\`${skippedTrack}\` :fast_forward: **skipped!**`);
+                }
             }
         }
     }

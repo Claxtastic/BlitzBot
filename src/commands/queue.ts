@@ -14,11 +14,11 @@ export default class queue implements IBotCommand {
         return command === this._command;
     }
 
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
+    executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
         if (mediaData.queue != undefined && mediaData.queue.length != 0) {
-            return msgObject.channel.send(this.createQueueEmbed(mediaData.queue));
+            return message.channel.send(this.createQueueEmbed(mediaData.queue));
         } else {
-            return msgObject.reply("No track is playing!");
+            return message.reply("No track is playing!");
         }
     }
 
@@ -27,7 +27,7 @@ export default class queue implements IBotCommand {
         const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
                 .setTitle("Queue") 
                 .setColor("#d59363");
-        let position: number = 1;
+        let position = 1;
         copiedQueue.forEach(track => {
             embed.addField(position, `\`\`\`${track.title}\`\`\``, true);
             position++;

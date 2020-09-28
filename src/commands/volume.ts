@@ -15,7 +15,7 @@ export default class volume implements IBotCommand {
         return command === this._command;
     }
     
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
+    executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
 
         const embed: Discord.MessageEmbed = new Discord.MessageEmbed();
         if (params.length < 1) {
@@ -23,16 +23,16 @@ export default class volume implements IBotCommand {
                 .setTitle("Current default volume")
                 .setDescription(`Default volume is set to: \`${ConfigFile.config.volume}\``)
                 .setColor("#d59363");
-            return msgObject.channel.send(embed);
+            return message.channel.send(embed);
         }
 
         const defaultFlag: string = params[0];
         if (defaultFlag === "default") {
             if (params.length < 2 || !this.isValidVolume(+params[1])) {
-                return msgObject.channel.send(this.badInput(embed));
+                return message.channel.send(this.badInput(embed));
             }
             ConfigFile.config.volume = +params[1];
-            return msgObject.channel.send(embed
+            return message.channel.send(embed
                 .setTitle("Default volume set")
                 .setDescription(`Set new default volume to \`${+params[1]}\``)
                 .setColor("#d59363"));
@@ -41,18 +41,18 @@ export default class volume implements IBotCommand {
         if (this.isValidVolume(+params[0])) {
             if (mediaData.queue === undefined || mediaData.queue.length === 0) {
                 // no track is playing
-                return msgObject.channel.send(embed
+                return message.channel.send(embed
                     .setTitle("No track is playing")
                     .setDescription(`Can't change volume, no track is playing. Use \`volume default x\` to change the default volume.`)
                     .setColor("#d59363"));
             }
             mediaData?.streamDispatcher?.setVolume(+params[0]);
-            return msgObject.channel.send(embed
+            return message.channel.send(embed
                 .setTitle("Changed volume")
                 .setDescription(`Changed volume for this track to \`${+params[0]}\``)
                 .setColor("#d59363"));
         } else {
-            return msgObject.channel.send(this.badInput(embed));
+            return message.channel.send(this.badInput(embed));
         }
     }
 
@@ -67,8 +67,8 @@ export default class volume implements IBotCommand {
     badInput(embed: Discord.MessageEmbed) {
         embed
             .setTitle("Invalid volume")
-            .addField("\`volume x\`", "Set the volume of the current track between 0.1 and 2.")
-            .addField("\`volume default x\`", "Set the default volume for all tracks between 0.1 and 2.")
+            .addField("`volume x`", "Set the volume of the current track between 0.1 and 2.")
+            .addField("`volume default x`", "Set the default volume for all tracks between 0.1 and 2.")
             .setColor("#d59363");
         return embed;
     }

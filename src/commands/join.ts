@@ -13,13 +13,13 @@ export default class join implements IBotCommand {
         return command === this._command;
     }
 
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
-        if (msgObject.member && !msgObject.guild?.voice?.channel) {
-            if (msgObject.member.voice.channel) {
-                msgObject.member.voice.channel.join();
-                msgObject.react("🙋‍♂️");
+    executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
+        if (message.member && !message.guild?.voice?.channel) {
+            if (message.member.voice.channel) {
+                message.member.voice.channel.join();
+                message.react("🙋‍♂️");
             } else {
-                return msgObject.reply("You must join a voice channel before telling the bot to join!");
+                return message.reply("You must join a voice channel before telling the bot to join!");
             }
         }
     }

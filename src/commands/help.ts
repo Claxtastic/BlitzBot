@@ -4,7 +4,7 @@ import * as ConfigFile from "../config";
 
 export default class help implements IBotCommand {
 
-    private _command: string = "help";
+    private _command = "help";
 
     help(): string[] {
         return ["help", "Display this text."];
@@ -14,9 +14,9 @@ export default class help implements IBotCommand {
         return command === this._command;
     }
 
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
+    executeCommand(params: string[], message: Discord.Message, client: Discord.Client): void {
 
-        let embed: Discord.MessageEmbed = new Discord.MessageEmbed()
+        const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
             .setTitle("**__BlitzBot Manual__**")
             .setColor("#d59363");
             
@@ -26,6 +26,6 @@ export default class help implements IBotCommand {
             embed.addField(command.help()[0], command.help()[1]);
         }
         
-        msgObject.channel.send(embed);
+        message.channel.send(embed);
     }
 }

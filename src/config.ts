@@ -1,4 +1,4 @@
-export let config = {
+export const config = {
     "discordToken": "",
     "youtubeToken": "",
     "prefix": "!",
@@ -16,6 +16,7 @@ export let config = {
         "queue",
         "pause",
         "resume",
-        "restart"
+        "restart",
+        "changelog"
     ]
 }

@@ -1,5 +1,6 @@
 import * as Discord from "discord.js"
 import * as ConfigFile from "../config"
+import * as log from "loglevel"
 import { get } from "request-promise"
 import { mediaData } from "../index"
 import { IBotCommand } from "../api"
@@ -97,6 +98,16 @@ export default class play implements IBotCommand {
         return embed
     }
 
+    createPlaylistResponse(playlist, length: number) { 
+        const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
+        embed
+            .setTitle(`Starting playlist ${playlist.title}`)
+            .setColor("#c4302b")
+            .setThumbnail(playlist.thumbnails.high.url)
+            .setDescription(`Added ${length} tracks to queue \n ${playlist.url}`)
+        return embed
+    }
+
     createErrorResponse(track: Track, e: Error): Discord.MessageEmbed {
         const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
         embed
@@ -127,23 +138,11 @@ export default class play implements IBotCommand {
 
             // if query is a YouTube Playlist URL
             if (query.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/playlist.+/)) {
-                const playlist = this.youtubeAPI.getPlaylistById(query, (error, result) => { 
-                    if (error) {
-                        return msgObject.reply(error)
-                    }
-                    console.log(result)
-                })
-                // const videos = await playlist.getVideos()
-
-                // videos.array.forEach(async (videoObj: any) => {
-                //     const video = await this.youtubeAPI.getVideoByID(videoObj.id)
-                //     console.log(video)
-                //     return msgObject.reply(video)
-                // }) 
+                // return because the rest of this function pertains to single queries 
+                return await this.handleYoutubePlaylist(query, msgObject, client)
             }
             // else query is Single Youtube URL
             else {
-                const url: string = query
                 const queryParts: string[] = query
                     .replace(/(>|<)/gi, '')
                     .split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/)
@@ -165,86 +164,128 @@ export default class play implements IBotCommand {
             query = params.join(" ")
             track = await this.handleYoutubeQuery(query, voiceChannel)
         }
-
-        queue.push(track)
-        mediaData.queue = queue
         
-        try {
-            const embed: Discord.MessageEmbed = this.createPlayResponse(track)
-            if (mediaData.queue.length === 1) {
-                msgObject.channel.send(embed)
-                return this.playTrack(queue, client)
-            } else {
-                return msgObject.channel.send(embed)
-            }
-        } catch (exception) { msgObject.channel.send(`Error playing track from bot: ${exception}`) }
+        // do a final check before we enqueue and attempt playing of track
+        if (track) {
+            this.enqueue(track, msgObject, client)
+        } 
+        else {
+            console.error(`Track is undefined; not enqueuing`)
+            return msgObject.channel.send(`Error when handling the query; this query was not parsed into a playable track`)
+        }
     }
 
     /** Handle a single Youtube url **/
     async handleYoutubeUrl(id: string, voiceChannel: Discord.VoiceChannel): Promise<YoutubeTrack> {
         console.log("Query is single Youtube video")
 
-        const youtubeVideo = await this.youtubeAPI.getVideoByID(id)
-
-        const track = {
-            url: youtubeVideo.url,
-            title: youtubeVideo.title,
-            duration: this.formatVideoDuration(youtubeVideo.duration),
-            durationMs: youtubeVideo.duration,
-            thumbnail: youtubeVideo.thumbnails.high.url,
-            voiceChannel: voiceChannel,
-            type: "youtube"
-        } as YoutubeTrack
-
-        return youtubeVideo ? track : Promise.reject(new Error())
+        // GET video with query ID
+        return await this.youtubeAPI.getVideoByID(id)
+            .then(video => this.createYoutubeTrack(video, voiceChannel))
+            .catch(console.error)
     }
 
     /** Handle Youtube query **/
     async handleYoutubeQuery(query: string, voiceChannel: Discord.VoiceChannel): Promise<Track> {
         console.log("Query is a Youtube query")
 
-        // get one video (top result) from the search query
-        const videoResults = await this.youtubeAPI.searchVideos(query, 1)
-        const youtubeVideo = await this.youtubeAPI.getVideoByID(videoResults[0].id)
-        
-        const track = {
-            url: youtubeVideo.url,
-            title: youtubeVideo.title,
-            duration: this.formatVideoDuration(youtubeVideo.duration),
-            durationMs: youtubeVideo.duration,
-            thumbnail: youtubeVideo.thumbnails.high.url,
-            voiceChannel: voiceChannel,
-            type: "youtube"
-        } as YoutubeTrack
-
-        return youtubeVideo ? track : Promise.reject(new Error())
+        // GET videos with query
+        return await this.youtubeAPI.searchVideos(query, 1)
+            .then(async videoResults => {
+                // GET video object for top result
+                return await this.youtubeAPI.getVideoByID(videoResults[0].id)
+                    .then(video => this.createYoutubeTrack(video, voiceChannel))
+                    .catch(console.error)
+            })
+            .catch(console.error)
     }
 
     /** Handle a Youtube playlist query **/
-    handleYoutubePlaylist() {
-
+    async handleYoutubePlaylist(query: string, msgObject: Discord.Message, client: Discord.Client) {
+        console.log("Query is a Youtube playlist query")
+        
+        // GET playlist with URL
+        await this.youtubeAPI.getPlaylist(query)
+            .then(async playlist => {
+                // GET videos array from playlist
+                await playlist.getVideos()
+                    .then(async videos  => {
+                        const embed: Discord.MessageEmbed = this.createPlaylistResponse(playlist, videos.length)
+                        msgObject.channel.send(embed)
+                        videos.forEach(async video => {
+                            // GET video by ID so we get an object w/duration
+                            // TODO: try using video.fetch() instead to limit the amount of api calls
+                            if (video.title === "[Deleted video]") console.log("found a deleted video")
+                            await this.youtubeAPI.getVideoByID(video.id)
+                                .then(fullVideo => {
+                                    // make a track for each video
+                                    const youtubeTrack: YoutubeTrack = this.createYoutubeTrack(fullVideo, msgObject.member.voice.channel)
+                                    // enqueue each track
+                                    this.enqueue(youtubeTrack, msgObject, client, true);
+                                })
+                        })
+                    })
+                    .catch(console.error)
+            })
+            .catch(console.error)
     }
 
     /** Handle a Soundcloud track query **/
     async handleSoundcloudTrack(query: string, voiceChannel: Discord.VoiceChannel): Promise<Track> {
+        console.log("Query is a Soundcloud query")
+
+        // GET track from Soundcloud
         return await get("http://api.soundcloud.com/resolve.json?url=" + query + "&client_id=" + this.soundcloudToken)
-            .then(body => {
+            .then((body): Track => {
                 const response = JSON.parse(body)
-                return {
-                    url: response.permalink_url,
-                    title: response.title,
-                    duration: this.formatSoundcloudDuration(response.duration),
-                    durationMs: response.duration,
-                    thumbnail: response.user.avatar_url,
-                    voiceChannel: voiceChannel,
-                    streamUrl: "http://api.soundcloud.com/tracks/" + response.id + "/stream?consumer_key=71dfa98f05fa01cb3ded3265b9672aaf",
-                    type: "soundcloud"
-                } as SoundcloudTrack
+                return this.createSoundcloudTrack(response, voiceChannel) 
             })
             .catch((err: Error) => {
                 console.log(err)
                 return Promise.reject(err)
             })
+    }
+
+    createYoutubeTrack(video, voiceChannel: Discord.VoiceChannel): YoutubeTrack {        
+        const track = {
+            url: video.url,
+            title: video.title,
+            duration: this.formatVideoDuration(video.duration),
+            durationMs: video.duration,
+            thumbnail: video.thumbnails.high.url,
+            voiceChannel: voiceChannel,
+            type: "youtube"
+        } as YoutubeTrack 
+        return track
+    }
+
+    createSoundcloudTrack(response, voiceChannel) {
+        const track = {
+            url: response.permalink_url,
+            title: response.title,
+            duration: this.formatSoundcloudDuration(response.duration),
+            durationMs: response.duration,
+            thumbnail: response.user.avatar_url,
+            voiceChannel: voiceChannel,
+            streamUrl: "http://api.soundcloud.com/tracks/" + response.id + "/stream?consumer_key=71dfa98f05fa01cb3ded3265b9672aaf",
+            type: "soundcloud"
+        } as SoundcloudTrack
+        return track
+    }
+
+    enqueue(track: Track, msgObject: Discord.Message, client: Discord.Client, isPlaylistChild=false) {
+        queue.push(track)
+        mediaData.queue = queue
+
+        // if this track is the child of a playlist, don't send an embed for every video
+        if (!isPlaylistChild) {
+            const embed: Discord.MessageEmbed = this.createPlayResponse(track)
+            msgObject.channel.send(embed)
+        }
+
+        // play immediately if we just queued the first track
+        if (mediaData.queue.length === 1) 
+            return this.playTrack(queue, client)
     }
 
     async getPlayFunction(track: Track, connection: Discord.VoiceConnection)  {
@@ -305,8 +346,8 @@ export default class play implements IBotCommand {
     }
 
     playNextTrackOrStartTimeout(queue: Array<Track>, client: Discord.Client, voiceChannel: Discord.VoiceChannel) {
-        queue.shift()
         mediaData?.streamDispatcher?.end()
+        queue.shift()
         client?.user?.setPresence({ activity: { name: "" } })
         if (queue.length >= 1) {
             console.log("Playing next track")

@@ -18,7 +18,8 @@ class MediaData {
 export const mediaData = new MediaData()
 
 client.on("ready", () => {
-    console.log("Ready to go")
+    console.log
+    (`  ____  _ _ _       ____        _   \n |  _ \\| (_) |     |  _ \\      | |  \n | |_) | |_| |_ ___| |_) | ___ | |_ \n |  _ <| | | __|_  /  _ < / _ \\| __|\n | |_) | | | |_ / /| |_) | (_) | |_ \n |____/|_|_|\\__/___|____/ \\___/ \\__|`)
     if (client.user)
         client.user.setPresence({ activity: { name: "" } })
 })

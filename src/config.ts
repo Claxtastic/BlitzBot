@@ -16,6 +16,7 @@ export const config = {
         "queue",
         "pause",
         "resume",
-        "restart"
+        "restart",
+        "changelog"
     ]
 }

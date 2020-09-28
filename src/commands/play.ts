@@ -1,6 +1,6 @@
 import * as Discord from "discord.js"
 import * as ConfigFile from "../config"
-import * as log from "loglevel"
+import { Logger } from "tslog"
 import { get } from "request-promise"
 import { mediaData } from "../index"
 import { IBotCommand } from "../api"
@@ -8,6 +8,7 @@ import { Track } from "../model/Track"
 import { SoundcloudTrack } from "../model/SoundcloudTrack"
 import { YoutubeTrack } from "../model/YoutubeTrack"
 
+export const log = new Logger({minLevel: "info"})
 export const queue = Array<Track>()
 export const streamOptions = { seek: 0 }
 export default class play implements IBotCommand {
@@ -170,24 +171,24 @@ export default class play implements IBotCommand {
             this.enqueue(track, msgObject, client)
         } 
         else {
-            console.error(`Track is undefined; not enqueuing`)
+            log.error(`Track is undefined; not enqueuing`)
             return msgObject.channel.send(`Error when handling the query; this query was not parsed into a playable track`)
         }
     }
 
     /** Handle a single Youtube url **/
     async handleYoutubeUrl(id: string, voiceChannel: Discord.VoiceChannel): Promise<YoutubeTrack> {
-        console.log("Query is single Youtube video")
+        log.debug("Query is single Youtube video")
 
         // GET video with query ID
         return await this.youtubeAPI.getVideoByID(id)
             .then(video => this.createYoutubeTrack(video, voiceChannel))
-            .catch(console.error)
+            .catch((e: Error) => log.error(`Error getting video by ID: ${id}`))
     }
 
     /** Handle Youtube query **/
     async handleYoutubeQuery(query: string, voiceChannel: Discord.VoiceChannel): Promise<Track> {
-        console.log("Query is a Youtube query")
+        log.debug("Query is a Youtube query")
 
         // GET videos with query
         return await this.youtubeAPI.searchVideos(query, 1)
@@ -195,14 +196,14 @@ export default class play implements IBotCommand {
                 // GET video object for top result
                 return await this.youtubeAPI.getVideoByID(videoResults[0].id)
                     .then(video => this.createYoutubeTrack(video, voiceChannel))
-                    .catch(console.error)
+                    .catch((e: Error) => log.error(`Error getting video by ID: ${videoResults[0].id}`))
             })
-            .catch(console.error)
+            .catch((e: Error) => log.error(`Error getting video results for query: ${query}`))
     }
 
     /** Handle a Youtube playlist query **/
     async handleYoutubePlaylist(query: string, msgObject: Discord.Message, client: Discord.Client) {
-        console.log("Query is a Youtube playlist query")
+        log.debug("Query is a Youtube playlist query")
         
         // GET playlist with URL
         await this.youtubeAPI.getPlaylist(query)
@@ -215,7 +216,6 @@ export default class play implements IBotCommand {
                         videos.forEach(async video => {
                             // GET video by ID so we get an object w/duration
                             // TODO: try using video.fetch() instead to limit the amount of api calls
-                            if (video.title === "[Deleted video]") console.log("found a deleted video")
                             await this.youtubeAPI.getVideoByID(video.id)
                                 .then(fullVideo => {
                                     // make a track for each video
@@ -225,14 +225,14 @@ export default class play implements IBotCommand {
                                 })
                         })
                     })
-                    .catch(console.error)
+                    .catch((e: Error) => log.error(`Error getting videos from playlist: ${playlist.title}`))
             })
-            .catch(console.error)
+            .catch((e: Error) => log.error(`Error getting playlist for query:" ${query}`))
     }
 
     /** Handle a Soundcloud track query **/
     async handleSoundcloudTrack(query: string, voiceChannel: Discord.VoiceChannel): Promise<Track> {
-        console.log("Query is a Soundcloud query")
+        log.info("Query is a Soundcloud query")
 
         // GET track from Soundcloud
         return await get("http://api.soundcloud.com/resolve.json?url=" + query + "&client_id=" + this.soundcloudToken)
@@ -241,7 +241,7 @@ export default class play implements IBotCommand {
                 return this.createSoundcloudTrack(response, voiceChannel) 
             })
             .catch((err: Error) => {
-                console.log(err)
+                log.error(err)
                 return Promise.reject(err)
             })
     }
@@ -300,12 +300,12 @@ export default class play implements IBotCommand {
     }
 
     startIdleTimeout(client: Discord.Client, voiceChannel: Discord.VoiceChannel) {
-        console.log("Starting sleep ... ")
+        log.info("Starting sleep ... ")
         this.idleTimer = setTimeout(() => 
         {
             client.voice?.connections.forEach(connection => {
                 if (connection.channel === voiceChannel) {
-                    console.log("Going idle")
+                    log.info("Going idle")
                     connection.disconnect()
                 }
             })
@@ -324,6 +324,7 @@ export default class play implements IBotCommand {
             .join().then(async (connection: Discord.VoiceConnection) => {
                 const dispatcher: Discord.StreamDispatcher = (await this.getPlayFunction(queue[0], connection))
                     .on("start", () => {
+                        log.info(`Starting track ${queue[0].title}`)
                         this.endIdleTimeout()
                         dispatcher.setVolume(ConfigFile.config.volume)
                         // save dispatcher so that it can be accessed by skip and other commands
@@ -338,7 +339,7 @@ export default class play implements IBotCommand {
                         // send an embed with the error
                         const embed: Discord.MessageEmbed = this.createErrorResponse(queue[0], e)
                         this.textChannel.send(embed)
-                        console.log(`ERROR playing track: ${e}`)
+                        log.error(`Error playing track: ${e}`)
                         // graceful recovery, start next track or timeout
                         this.playNextTrackOrStartTimeout(queue, client, voiceChannel)
                     })
@@ -350,7 +351,6 @@ export default class play implements IBotCommand {
         queue.shift()
         client?.user?.setPresence({ activity: { name: "" } })
         if (queue.length >= 1) {
-            console.log("Playing next track")
             this.playTrack(queue, client)
         } else {
             this.startIdleTimeout(client, voiceChannel)

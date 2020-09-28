@@ -1,0 +1,10 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+## [1.3]
+- Made the code less gross. The bot should now recover from almost all issues it might encounter when playing a track.
+- The bot can now handle YouTube playlists . Try a link like this `https://www.youtube.com/playlist?list=PL86h966U8nZAg04lwvw2ESBUvAjwvrf_n` to see it in action.
+- You can now pass a number or the `all` flag to the `skip` command to skip x number of tracks.
+- Added `changelog` command to show show a message like this one.
+- `restart` command has been fixed to restart the bot in case of any weird states. 
+###

@@ -14,15 +14,15 @@ export default class leave implements IBotCommand {
         return command === this._command;
     }
     
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
-        if (msgObject.member && msgObject.guild?.voice?.channel) {
-            if (msgObject.member.voice.channel) {
+    executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
+        if (message.member && message.guild?.voice?.channel) {
+            if (message.member.voice.channel) {
                 if (mediaData.streamDispatcher != undefined)
                     mediaData.streamDispatcher.end();
-                msgObject.member.voice.channel?.leave();
-                return msgObject.react("👋");
+                message.member.voice.channel?.leave();
+                return message.react("👋");
             } else {
-                return msgObject.reply("You must join a voice channel before telling the bot to leave!");
+                return message.reply("You must join a voice channel before telling the bot to leave!");
             }
         }
     }

@@ -9,5 +9,5 @@ export interface IBotCommand {
     isThisCommand(command: string): boolean;
 
     // executeCommand: execute this command with the parameters found in the message, as well as a reference to the message 
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void;
+    executeCommand(params: string[], message: Discord.Message, client: Discord.Client): void;
 }

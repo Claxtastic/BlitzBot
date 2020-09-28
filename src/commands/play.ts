@@ -1,14 +1,13 @@
 import * as Discord from "discord.js"
 import * as ConfigFile from "../config"
-import { Logger } from "tslog"
 import { get } from "request-promise"
-import { mediaData } from "../index"
+import { log, mediaData } from "../index"
 import { IBotCommand } from "../api"
 import { Track } from "../model/Track"
 import { SoundcloudTrack } from "../model/SoundcloudTrack"
 import { YoutubeTrack } from "../model/YoutubeTrack"
 
-export const log = new Logger({minLevel: "info"})
+
 export const queue = Array<Track>()
 export const streamOptions = { seek: 0 }
 export default class play implements IBotCommand {
@@ -27,7 +26,7 @@ export default class play implements IBotCommand {
     private textChannel: Discord.TextChannel | undefined
     
     help(): string[] {
-        return ["play", "Play a YouTube link, the 1st result of a YouTube search, or a Soundcloud link."]
+        return ["play", "Play a YouTube link, the 1st result of a YouTube search, YouTube playlist, or a Soundcloud link."]
     }
 
     isThisCommand(command: string): boolean { 
@@ -120,16 +119,16 @@ export default class play implements IBotCommand {
         return embed
     }
 
-    async executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
-        if (!msgObject.member?.voice || !msgObject.member.voice.channel) {
-            return msgObject.reply("You must join a voice channel before playing!")
+    async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
+        if (!message.member?.voice || !message.member.voice.channel) {
+            return message.reply("You must join a voice channel before playing!")
         }
-        const voiceChannel: Discord.VoiceChannel = msgObject.member.voice.channel
+        const voiceChannel: Discord.VoiceChannel = message.member.voice.channel
         // save the text channel in case we have to send any errors
-        this.textChannel = msgObject.channel as Discord.TextChannel
+        this.textChannel = message.channel as Discord.TextChannel
 
         let query: string = params[0]        
-        if (!query) return msgObject.reply("Please provide either: 1. A YouTube URL 2. A Soundcloud URL 3. YouTube search terms")
+        if (!query) return message.reply("Please provide either: 1. A YouTube URL 2. A Soundcloud URL 3. YouTube search terms")
         
         // the resulting track created by the query
         let track: Track
@@ -140,7 +139,7 @@ export default class play implements IBotCommand {
             // if query is a YouTube Playlist URL
             if (query.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/playlist.+/)) {
                 // return because the rest of this function pertains to single queries 
-                return await this.handleYoutubePlaylist(query, msgObject, client)
+                return await this.handleYoutubePlaylist(query, message, client)
             }
             // else query is Single Youtube URL
             else {
@@ -168,11 +167,11 @@ export default class play implements IBotCommand {
         
         // do a final check before we enqueue and attempt playing of track
         if (track) {
-            this.enqueue(track, msgObject, client)
+            this.enqueue(track, message, client)
         } 
         else {
             log.error(`Track is undefined; not enqueuing`)
-            return msgObject.channel.send(`Error when handling the query; this query was not parsed into a playable track`)
+            return message.channel.send(`Error when handling the query; this query was not parsed into a playable track`)
         }
     }
 
@@ -202,7 +201,7 @@ export default class play implements IBotCommand {
     }
 
     /** Handle a Youtube playlist query **/
-    async handleYoutubePlaylist(query: string, msgObject: Discord.Message, client: Discord.Client) {
+    async handleYoutubePlaylist(query: string, message: Discord.Message, client: Discord.Client) {
         log.debug("Query is a Youtube playlist query")
         
         // GET playlist with URL
@@ -211,21 +210,18 @@ export default class play implements IBotCommand {
                 // GET videos array from playlist
                 await playlist.getVideos()
                     .then(async videos  => {
+                        log.info(`Starting playlist ${playlist.title}`)
                         const embed: Discord.MessageEmbed = this.createPlaylistResponse(playlist, videos.length)
-                        msgObject.channel.send(embed)
-                        videos.forEach(async video => {
+                        message.channel.send(embed)
+                        for (var video of videos) {
                             // GET video by ID so we get an object w/duration
-                            // TODO: try using video.fetch() instead to limit the amount of api calls
-                            await this.youtubeAPI.getVideoByID(video.id)
-                                .then(fullVideo => {
-                                    // make a track for each video
-                                    const youtubeTrack: YoutubeTrack = this.createYoutubeTrack(fullVideo, msgObject.member.voice.channel)
-                                    // enqueue each track
-                                    this.enqueue(youtubeTrack, msgObject, client, true);
-                                })
-                        })
+                            const fullVideo = await this.youtubeAPI.getVideoByID(video.id)
+                            const youtubeTrack: YoutubeTrack = this.createYoutubeTrack(fullVideo, message.member.voice.channel)
+                            // enqueue each track
+                            this.enqueue(youtubeTrack, message, client, true);
+                        }
                     })
-                    .catch((e: Error) => log.error(`Error getting videos from playlist: ${playlist.title}`))
+                    .catch((e: Error) => log.error(`Error getting videos from playlist: ${playlist.title}\n${e}`))
             })
             .catch((e: Error) => log.error(`Error getting playlist for query:" ${query}`))
     }
@@ -273,14 +269,14 @@ export default class play implements IBotCommand {
         return track
     }
 
-    enqueue(track: Track, msgObject: Discord.Message, client: Discord.Client, isPlaylistChild=false) {
+    enqueue(track: Track, message: Discord.Message, client: Discord.Client, isPlaylistChild=false) {
         queue.push(track)
         mediaData.queue = queue
 
         // if this track is the child of a playlist, don't send an embed for every video
         if (!isPlaylistChild) {
             const embed: Discord.MessageEmbed = this.createPlayResponse(track)
-            msgObject.channel.send(embed)
+            message.channel.send(embed)
         }
 
         // play immediately if we just queued the first track

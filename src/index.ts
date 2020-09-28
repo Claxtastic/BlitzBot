@@ -1,7 +1,9 @@
 import * as Discord from "discord.js"
 import * as ConfigFile from "./config"
+import changelog from "./commands/changelog"
 import { IBotCommand } from "./api"
 import { Track } from "./model/Track"
+import { Logger } from "tslog"
 
 const client: Discord.Client = new Discord.Client()
 
@@ -16,12 +18,20 @@ class MediaData {
 
 // properties will be assigned once a queue has began from the play command
 export const mediaData = new MediaData()
+export const log = new Logger({minLevel: "info"})
 
 client.on("ready", () => {
     console.log
     (`  ____  _ _ _       ____        _   \n |  _ \\| (_) |     |  _ \\      | |  \n | |_) | |_| |_ ___| |_) | ___ | |_ \n |  _ <| | | __|_  /  _ < / _ \\| __|\n | |_) | | | |_ / /| |_) | (_) | |_ \n |____/|_|_|\\__/___|____/ \\___/ \\__|`)
     if (client.user)
         client.user.setPresence({ activity: { name: "" } })
+
+    // check if flag to send changelog on startup is set 
+    if (process.argv[2] === "-c") {
+        if (process.argv[3]) {
+            changelog.sendChangelogOnStartup(client, process.argv[3])
+        }
+    }
 })
 
 /* Command Handler */

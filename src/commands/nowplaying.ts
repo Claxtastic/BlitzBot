@@ -14,9 +14,9 @@ export default class nowplaying implements IBotCommand {
         return command === this._command;
     }
 
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client) {
+    executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
         if ( mediaData === undefined || mediaData.queue === undefined || mediaData.queue[0] === undefined) { 
-            return msgObject.reply("No track is playing!");
+            return message.reply("No track is playing!");
         } else { 
             const track = mediaData.queue[0]; 
             const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
@@ -27,7 +27,7 @@ export default class nowplaying implements IBotCommand {
                 .addField("Track Duration: ", `${track.duration}`)
                 .setColor("#d59363");
                 // TODO: add track duration progress to this embed
-            return msgObject.channel.send(embed);
+            return message.channel.send(embed);
         }
     }
 }

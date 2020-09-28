@@ -14,7 +14,7 @@ export default class help implements IBotCommand {
         return command === this._command;
     }
 
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
+    executeCommand(params: string[], message: Discord.Message, client: Discord.Client): void {
 
         const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
             .setTitle("**__BlitzBot Manual__**")
@@ -26,6 +26,6 @@ export default class help implements IBotCommand {
             embed.addField(command.help()[0], command.help()[1]);
         }
         
-        msgObject.channel.send(embed);
+        message.channel.send(embed);
     }
 }

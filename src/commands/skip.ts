@@ -1,24 +1,24 @@
-import * as Discord from "discord.js";
-import { IBotCommand } from "../api";
-import { mediaData, log } from "../index";
-import { Track } from "../model/Track";
+import * as Discord from "discord.js"
+import { IBotCommand } from "../api"
+import { mediaData, log } from "../index"
+import { Track } from "../model/Track"
 
 export default class skip implements IBotCommand {
 
-    private readonly _command: string = "skip";
+    private readonly commands: string[] = ["skip", "s"]
 
     help(): string[] {
-        return ["skip", "Skip the currently playing track, all tracks, or add a number to skip the next x tracks."];
+        return ["skip", "Skip the currently playing track, all tracks, or add a number to skip the next x tracks."]
     }    
     
     isThisCommand(command: string): boolean {
-        return command === this._command;
+        return this.commands.includes(command)
     }
 
     executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
         if (mediaData.queue != undefined) {
             if (mediaData.queue.length === 0) { 
-                return message.reply("No track is playing!");
+                return message.reply("No track is playing!")
             }
             if (mediaData.streamDispatcher != undefined) {
                 if (params[0]) {
@@ -40,10 +40,10 @@ export default class skip implements IBotCommand {
                         return message.channel.send(`**Skipped ${params[0]} tracks!** :fast_forward:`)
                     }
                 } else {
-                    const copiedQueue: Array<Track> = mediaData.queue.map(track => Object.assign({}, track));
-                    const skippedTrack: string = copiedQueue.shift().title;
-                    mediaData.streamDispatcher.end();
-                    return message.channel.send(`\`${skippedTrack}\` :fast_forward: **skipped!**`);
+                    const copiedQueue: Array<Track> = mediaData.queue.map(track => Object.assign({}, track))
+                    const skippedTrack: string = copiedQueue.shift().title
+                    mediaData.streamDispatcher.end()
+                    return message.channel.send(`\`${skippedTrack}\` :fast_forward: **skipped!**`)
                 }
             }
         }

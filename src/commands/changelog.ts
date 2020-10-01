@@ -1,19 +1,20 @@
-import * as Discord from "discord.js";
-import { IBotCommand } from "../api";
-import fs from "fs";
-import path from "path";
+import * as Discord from "discord.js"
+import { IBotCommand } from "../api"
+import fs from "fs"
+import path from "path"
+import { constants } from "../constants"
 
 const pkg = require("../../package.json")
 export default class changelog implements IBotCommand {
 
-    private readonly _command: string = "changelog";
+    private readonly command: string = "changelog"
 
     help(): string[] {
-        return ["changelog", "Show the most recent changelog."];
+        return ["changelog", "Show the most recent changelog."]
     }
 
     isThisCommand(command: string): boolean {
-        return command === this._command;
+        return command === this.command
     }
 
     executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
@@ -34,14 +35,14 @@ export default class changelog implements IBotCommand {
 
         const currentVersionHeader = `## [${pkg.version}]`
         const currentVersionFooter = "###"
-
+        
         const currentVersion = fullChangelog.substring(fullChangelog.indexOf(currentVersionHeader) + currentVersionHeader.length,
             fullChangelog.lastIndexOf(currentVersionFooter))
 
         embed
             .setTitle(`BlitzBot v${pkg.version}`)
             .setDescription(`${currentVersion}`)
-            .setColor("#d59363");
+            .setColor(constants.YELLOW)
         return embed
     }
 

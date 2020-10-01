@@ -1,19 +1,19 @@
-import * as Discord from "discord.js";
-import { IBotCommand } from "../api";
+import * as Discord from "discord.js"
+import { IBotCommand } from "../api"
 
 export default class testCommand implements IBotCommand {
 
-    private readonly _command = "ping";
+    private readonly command = "ping"
 
     help(): string[] {
-        return ["ping", "Pong."];
+        return ["ping", "Pong."]
     }
 
     isThisCommand(command: string): boolean {
-        return command === this._command;
+        return command === this.command
     }
 
     executeCommand(params: string[], message: Discord.Message, client: Discord.Client): void {
-        message.channel.send("Pong");
+        message.channel.send("Pong")
     }
 }

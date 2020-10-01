@@ -54,8 +54,7 @@ async function handleCommand(msg: Discord.Message) {
                 continue
             }
 
-            await commandClass.executeCommand(args, msg, client)
-            // commandClass.executeCommand(args, msg, client)      
+            await commandClass.executeCommand(args, msg, client)      
         } catch (exception) {
             console.log(exception)
         }

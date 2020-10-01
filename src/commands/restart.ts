@@ -6,14 +6,14 @@ import { mediaData } from ".."
 
 export default class restart implements IBotCommand {
 
-    private readonly _command: string = "restart"
+    private readonly command: string = "restart"
 
     help(): string[] {
         return ["restart", "Fully restart the bot (might resolve any connection/playback issues)."]
     }
 
     isThisCommand(command: string): boolean {
-        return command === this._command
+        return command === this.command
     }
 
     executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {

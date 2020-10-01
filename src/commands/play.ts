@@ -6,7 +6,7 @@ import { IBotCommand } from "../api"
 import { Track } from "../model/Track"
 import { SoundcloudTrack } from "../model/SoundcloudTrack"
 import { YoutubeTrack } from "../model/YoutubeTrack"
-
+import { constants } from "../constants"
 
 export const queue = Array<Track>()
 export const streamOptions = { seek: 0 }
@@ -14,13 +14,14 @@ export default class play implements IBotCommand {
 
     private readonly ytdl = require('ytdl-core')
     private readonly Youtube = require('simple-youtube-api')
-
-    private readonly command: string = "play"  
+  
     private readonly youtubeAPI = new this.Youtube(ConfigFile.config.youtubeToken)
 
-    private readonly soundcloudToken: string = "71dfa98f05fa01cb3ded3265b9672aaf"
-    private readonly highWaterMarkLong: number = 1
-    private readonly highWaterMarkShort: number = 1 << 25
+    private readonly soundcloudToken: string = constants.SOUNCLOUD_TOKEN
+    private readonly highWaterMarkLong: number = constants.HIGH_WATER_MARK_LONG
+    private readonly highWaterMarkShort: number = constants.HIGH_WATER_MARK_SHORT
+
+    private readonly commands: string[] = ["play", "p"]
     
     private idleTimer: NodeJS.Timeout
     private textChannel: Discord.TextChannel | undefined
@@ -30,7 +31,7 @@ export default class play implements IBotCommand {
     }
 
     isThisCommand(command: string): boolean { 
-        return command === this.command
+        return this.commands.includes(command)
     }
 
     formatVideoDuration(durationObject: { hours: number; minutes: string | number; seconds: string | number }): string {
@@ -91,7 +92,7 @@ export default class play implements IBotCommand {
         }
         
         embed
-            .setColor("#c4302b")
+            .setColor(constants.RED)
             .setThumbnail(track.thumbnail)
             .setDescription(`${track.title} added to queue \n ${track.url}`)
             .addField("Track Duration: ", `${track.duration}`) 
@@ -102,7 +103,7 @@ export default class play implements IBotCommand {
         const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
         embed
             .setTitle(`Starting playlist ${playlist.title}`)
-            .setColor("#c4302b")
+            .setColor(constants.RED)
             .setThumbnail(playlist.thumbnails.high.url)
             .setDescription(`Added ${length} tracks to queue \n ${playlist.url}`)
         return embed
@@ -112,7 +113,7 @@ export default class play implements IBotCommand {
         const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
         embed
             .setTitle(`${track.title} was unable to be played.`)
-            .setColor("#ff0000")
+            .setColor(constants.RED)
             .setDescription(`This could be unavoidable due to copyright or other restrictions, but it doesn't hurt to try again.`)
             .addField("Verbose error: ", `\`\`\`${e}\`\`\``)
             .setFooter(`The time of man has come to an end.`)
@@ -255,7 +256,7 @@ export default class play implements IBotCommand {
         return track
     }
 
-    createSoundcloudTrack(response, voiceChannel) {
+    createSoundcloudTrack(response, voiceChannel: Discord.VoiceChannel) {
         const track = {
             url: response.permalink_url,
             title: response.title,

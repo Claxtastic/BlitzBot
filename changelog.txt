@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.3.2]
-- Bot will make several attempts to play a track if there are any errors on first request.
+- Fix most "could not find player config" errors
 ###
 
 ## [1.3.1]

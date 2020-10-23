@@ -332,12 +332,7 @@ export default class play implements IBotCommand {
                     .on("finish", () => {
                         this.playNextTrackOrStartTimeout(queue, client, voiceChannel)
                     })
-                    .on("error", (e: Error) => {                    
-                        if (e.message == "Error: input stream: Could not find player config") {
-                            log.error(`Error in input stream; trying again`)
-                            this.playTrack(queue, client)
-                        }
-
+                    .on("error", (e: Error) => {
                         // send an embed with the error
                         const embed: Discord.MessageEmbed = this.createErrorResponse(queue[0], e)
                         this.textChannel.send(embed)

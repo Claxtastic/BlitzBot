@@ -13,6 +13,10 @@
   "author": "claxtastic",
   "repository": "https://github.com/Claxtastic/BlitzBot",
   "license": "ISC",
+
+  "optionalDependencies": {
+    "windows-build-tools": "^5.2.2"
+  },
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
     "@types/request-promise": "^4.1.46",
@@ -24,7 +28,6 @@
     "request-promise": "^4.2.5",
     "simple-youtube-api": "^5.2.1",
     "tslog": "^2.9.0",
-    "windows-build-tools": "^5.2.2",
     "yarn": "^1.22.4",
     "ytdl-core-discord": "^1.2.4"
   },

@@ -16,7 +16,7 @@ export default class restart implements IBotCommand {
         return command === this.command
     }
 
-    executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
+    async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
         log.info("Killing connections and restarting ...")
 
         client.voice?.connections.forEach(connection => connection.disconnect())
@@ -24,8 +24,8 @@ export default class restart implements IBotCommand {
         mediaData.streamDispatcher?.end()
         
         client.destroy()
-        client.login(ConfigFile.config.discordToken).then(() => {
-            message.react("🔁")
+        client.login(ConfigFile.config.discordToken).then(async () => {
+            await message.react("🔁")
             log.info("Restarted successfully")
         })
     }

@@ -13,7 +13,7 @@ export default class testCommand implements IBotCommand {
         return command === this.command
     }
 
-    executeCommand(params: string[], message: Discord.Message, client: Discord.Client): void {
-        message.channel.send("Pong")
+    async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
+        await message.channel.send("Pong")
     }
 }

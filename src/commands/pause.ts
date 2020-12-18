@@ -14,13 +14,13 @@ export default class pause implements IBotCommand {
         return command === this.command    
     }
 
-    executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
+    async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
         if (mediaData.streamDispatcher != undefined && mediaData.queue != undefined) {
             if (mediaData.queue.length >= 1) {
                 mediaData.streamDispatcher.pause()
-                return message.react("⏸")
+                await message.react("⏸")
             } else {
-                return message.reply("No track is playing!")
+                await message.reply("No track is playing!")
             }
         }
     }

@@ -15,7 +15,7 @@ export default class help implements IBotCommand {
         return command === this.command
     }
 
-    executeCommand(params: string[], message: Discord.Message, client: Discord.Client): void {
+    async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
 
         const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
             .setTitle("**__BlitzBot Manual__**")
@@ -27,6 +27,6 @@ export default class help implements IBotCommand {
             embed.addField(command.help()[0], command.help()[1])
         }
         
-        message.channel.send(embed)
+        await message.channel.send(embed)
     }
 }

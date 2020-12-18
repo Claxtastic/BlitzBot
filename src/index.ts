@@ -20,11 +20,11 @@ class MediaData {
 export const mediaData = new MediaData()
 export const log = new Logger({minLevel: "info"})
 
-client.on("ready", () => {
+client.on("ready", async () => {
     console.log
     (`  ____  _ _ _       ____        _   \n |  _ \\| (_) |     |  _ \\      | |  \n | |_) | |_| |_ ___| |_) | ___ | |_ \n |  _ <| | | __|_  /  _ < / _ \\| __|\n | |_) | | | |_ / /| |_) | (_) | |_ \n |____/|_|_|\\__/___|____/ \\___/ \\__|`)
     if (client.user)
-        client.user.setPresence({ activity: { name: "" } })
+        await client.user.setPresence({ activity: { name: "" } })
 
     // check if flag to send changelog on startup is set 
     if (process.argv[2] === "-c") {
@@ -35,11 +35,11 @@ client.on("ready", () => {
 })
 
 /* Command Handler */
-client.on("message", msg => {
+client.on("message", async (msg) => {
     if (msg.author.bot) return
     if (!msg.content.startsWith(ConfigFile.config.prefix)) return
 
-    handleCommand(msg)
+    await handleCommand(msg)
 })
 
 async function handleCommand(msg: Discord.Message) {
@@ -75,4 +75,4 @@ function loadCommands(commandsPath: string) {
     }
 }
 
-client.login(ConfigFile.config.discordToken)
+client.login(ConfigFile.config.discordToken).catch((e: Error) => console.log(e))

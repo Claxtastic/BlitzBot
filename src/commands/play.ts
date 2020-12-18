@@ -1,22 +1,21 @@
 import * as Discord from "discord.js"
 import * as ConfigFile from "../config"
-import fetch, { Response } from "node-fetch"
-import { log, mediaData } from "../index"
-import { IBotCommand } from "../api"
-import { Track } from "../model/Track"
-import { SoundcloudTrack } from "../model/SoundcloudTrack"
-import { YoutubeTrack } from "../model/YoutubeTrack"
-import { constants } from "../constants"
+import fetch, {Response} from "node-fetch"
+import {log, mediaData} from "../index"
+import {IBotCommand} from "../api"
+import {Track} from "../model/Track"
+import {SoundcloudTrack} from "../model/SoundcloudTrack"
+import {YoutubeTrack} from "../model/YoutubeTrack"
+import {constants} from "../constants"
 import Youtube from "simple-youtube-api"
 import ytdl from "ytdl-core"
 
 export const queue = Array<Track>()
-export const streamOptions = { seek: 0 }
 export default class play implements IBotCommand {
 
     private readonly youtubeAPI = new Youtube(ConfigFile.config.youtubeToken)
 
-    private readonly soundcloudToken: string = constants.SOUNCLOUD_TOKEN
+    private readonly soundcloudToken: string = constants.SOUNDCLOUD_TOKEN
     private readonly highWaterMarkLong: number = constants.HIGH_WATER_MARK_LONG
     private readonly highWaterMarkShort: number = constants.HIGH_WATER_MARK_SHORT
 
@@ -144,7 +143,7 @@ export default class play implements IBotCommand {
             // else query is Single Youtube URL
             else {
                 const queryParts: string[] = query
-                    .replace(/(>|<)/gi, '')
+                    .replace(/([><])/gi, '')
                     .split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/)
 
                 // the youtube video /watch? ID
@@ -167,7 +166,7 @@ export default class play implements IBotCommand {
         
         // do a final check before we enqueue and attempt playing of track
         if (track) {
-            this.enqueue(track, message, client)
+            await this.enqueue(track, message, client)
         } 
         else {
             log.error(`Track is undefined; not enqueuing`)
@@ -212,13 +211,13 @@ export default class play implements IBotCommand {
                     .then(async videos  => {
                         log.info(`Starting playlist ${playlist.title}`)
                         const embed: Discord.MessageEmbed = this.createPlaylistResponse(playlist, videos.length)
-                        message.channel.send(embed)
-                        for (var video of videos) {
+                        await message.channel.send(embed)
+                        for (const video of videos) {
                             // GET video by ID so we get an object w/duration
                             const fullVideo = await this.youtubeAPI.getVideoByID(video.id)
                             const youtubeTrack: YoutubeTrack = this.createYoutubeTrack(fullVideo, message.member.voice.channel)
                             // enqueue each track
-                            this.enqueue(youtubeTrack, message, client, true);
+                            await this.enqueue(youtubeTrack, message, client, true);
                         }
                     })
                     .catch((e: Error) => log.error(`Error getting videos from playlist: ${playlist.title}\n${e}`))
@@ -240,8 +239,8 @@ export default class play implements IBotCommand {
             })
     }
 
-    createYoutubeTrack(video, voiceChannel: Discord.VoiceChannel): YoutubeTrack {        
-        const track = {
+    createYoutubeTrack(video, voiceChannel: Discord.VoiceChannel): YoutubeTrack {
+        return {
             url: video.url,
             title: video.title,
             duration: this.formatVideoDuration(video.duration),
@@ -249,12 +248,11 @@ export default class play implements IBotCommand {
             thumbnail: video.thumbnails.high.url,
             voiceChannel: voiceChannel,
             type: "youtube"
-        } as YoutubeTrack 
-        return track
+        } as YoutubeTrack
     }
 
     createSoundcloudTrack(response, voiceChannel: Discord.VoiceChannel) {
-        const track = {
+        return {
             url: response.permalink_url,
             title: response.title,
             duration: this.formatSoundcloudDuration(response.duration),
@@ -264,17 +262,16 @@ export default class play implements IBotCommand {
             streamUrl: "http://api.soundcloud.com/tracks/" + response.id + "/stream?consumer_key=71dfa98f05fa01cb3ded3265b9672aaf",
             type: "soundcloud"
         } as SoundcloudTrack
-        return track
     }
 
-    enqueue(track: Track, message: Discord.Message, client: Discord.Client, isPlaylistChild=false) {
+    async enqueue(track: Track, message: Discord.Message, client: Discord.Client, isPlaylistChild=false) {
         queue.push(track)
         mediaData.queue = queue
 
         // if this track is the child of a playlist, don't send an embed for every video
         if (!isPlaylistChild) {
             const embed: Discord.MessageEmbed = this.createPlayResponse(track)
-            message.channel.send(embed)
+            await message.channel.send(embed)
         }
 
         // play immediately if we just queued the first track
@@ -292,7 +289,7 @@ export default class play implements IBotCommand {
             log.debug(`Response from ytdl: ${ytdlRes}`)
             return connection.play(ytdlRes)
         } else if (track.type === "soundcloud") {
-            log.debug(`Getting play function for Souncloud track`)
+            log.debug(`Getting play function for Soundcloud track`)
             return connection.play((track as SoundcloudTrack).streamUrl)
         }
     }

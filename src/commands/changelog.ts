@@ -7,51 +7,51 @@ import { constants } from "../constants"
 const pkg = require("../../package.json")
 export default class changelog implements IBotCommand {
 
-    private readonly command: string = "changelog"
+  private readonly command: string = "changelog"
 
-    help(): string[] {
-        return ["changelog", "Show the most recent changelog."]
-    }
+  help(): string[] {
+    return ["changelog", "Show the most recent changelog."]
+  }
 
-    isThisCommand(command: string): boolean {
-        return command === this.command
-    }
+  isThisCommand(command: string): boolean {
+    return command === this.command
+  }
 
-    executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
-        changelog.executeCommand(params, msgObject, client)
-    }
+  executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
+    changelog.executeCommand(params, msgObject, client)
+  }
 
-    static executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
-        const embed: Discord.MessageEmbed = this.createChangelogEmbed()
+  static executeCommand(params: string[], msgObject: Discord.Message, client: Discord.Client): void {
+    const embed: Discord.MessageEmbed = this.createChangelogEmbed()
 
-        const pogDraw = msgObject.guild.emojis.cache.find(emoji => emoji.name === "PogDraw")
-        msgObject.channel.send(embed).then(sentEmbed => sentEmbed.react(pogDraw))
-    }
+    const pogDraw = msgObject.guild.emojis.cache.find(emoji => emoji.name === "PogDraw")
+    msgObject.channel.send(embed).then(sentEmbed => sentEmbed.react(pogDraw))
+  }
 
-    static createChangelogEmbed(): Discord.MessageEmbed {
-        const embed = new Discord.MessageEmbed()
-        const filepath = path.join(__dirname, "..", "..", "changelog.txt")
-        const fullChangelog = fs.readFileSync(filepath, "utf8")
+  static createChangelogEmbed(): Discord.MessageEmbed {
+    const embed = new Discord.MessageEmbed()
+    const filepath = path.join(__dirname, "..", "..", "changelog.txt")
+    const fullChangelog = fs.readFileSync(filepath, "utf8")
 
-        const currentVersionHeader = `## [${pkg.version}]`
-        const currentVersionFooter = "###"
-        
-        const currentVersion = fullChangelog.substring(fullChangelog.indexOf(currentVersionHeader) + currentVersionHeader.length,
-            fullChangelog.lastIndexOf(currentVersionFooter))
+    const currentVersionHeader = `## [${pkg.version}]`
+    const currentVersionFooter = "###"
 
-        embed
-            .setTitle(`BlitzBot v${pkg.version}`)
-            .setDescription(`${currentVersion}`)
-            .setColor(constants.YELLOW)
-        return embed
-    }
+    const currentVersion = fullChangelog.substring(fullChangelog.indexOf(currentVersionHeader) + currentVersionHeader.length,
+      fullChangelog.lastIndexOf(currentVersionFooter))
 
-    static sendChangelogOnStartup(client: Discord.Client, channelId: string) {
-        const embed: Discord.MessageEmbed = this.createChangelogEmbed()
+    embed
+      .setTitle(`BlitzBot v${pkg.version}`)
+      .setDescription(`${currentVersion}`)
+      .setColor(constants.YELLOW)
+    return embed
+  }
 
-        const pogDraw = client.emojis.cache.find(emoji => emoji.name === "PogDraw")
-        const channel = client.channels.cache.get(channelId);
+  static sendChangelogOnStartup(client: Discord.Client, channelId: string) {
+    const embed: Discord.MessageEmbed = this.createChangelogEmbed()
 
-        (channel as Discord.TextChannel).send(embed).then(sentEmbed => sentEmbed.react(pogDraw))
-    }
+    const pogDraw = client.emojis.cache.find(emoji => emoji.name === "PogDraw")
+    const channel = client.channels.cache.get(channelId);
+
+    (channel as Discord.TextChannel).send(embed).then(sentEmbed => sentEmbed.react(pogDraw))
+  }
 }

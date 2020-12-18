@@ -6,27 +6,27 @@ import { mediaData } from ".."
 
 export default class restart implements IBotCommand {
 
-    private readonly command: string = "restart"
+  private readonly command: string = "restart"
 
-    help(): string[] {
-        return ["restart", "Fully restart the bot (might resolve any connection/playback issues)."]
-    }
+  help(): string[] {
+    return ["restart", "Fully restart the bot (might resolve any connection/playback issues)."]
+  }
 
-    isThisCommand(command: string): boolean {
-        return command === this.command
-    }
+  isThisCommand(command: string): boolean {
+    return command === this.command
+  }
 
-    async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
-        log.info("Killing connections and restarting ...")
+  async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
+    log.info("Killing connections and restarting ...")
 
-        client.voice?.connections.forEach(connection => connection.disconnect())
-        mediaData.queue = undefined
-        mediaData.streamDispatcher?.end()
-        
-        client.destroy()
-        client.login(ConfigFile.config.discordToken).then(async () => {
-            await message.react("🔁")
-            log.info("Restarted successfully")
-        })
-    }
+    client.voice?.connections.forEach(connection => connection.disconnect())
+    mediaData.queue = undefined
+    mediaData.streamDispatcher?.end()
+
+    client.destroy()
+    client.login(ConfigFile.config.discordToken).then(async () => {
+      await message.react("🔁")
+      log.info("Restarted successfully")
+    })
+  }
 }

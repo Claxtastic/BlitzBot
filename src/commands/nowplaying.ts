@@ -5,30 +5,30 @@ import { mediaData } from "../index"
 
 export default class nowplaying implements IBotCommand {
 
-    private readonly command: string = "nowplaying"
+  private readonly command: string = "nowplaying"
 
-    help(): string[] {
-        return ["nowplaying", "Shows the currently playing track and its' link."]
-    }    
-    
-    isThisCommand(command: string): boolean {   
-        return command === this.command
-    }
+  help(): string[] {
+    return ["nowplaying", "Shows the currently playing track and its' link."]
+  }
 
-    async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
-        if ( mediaData === undefined || mediaData.queue === undefined || mediaData.queue[0] === undefined) { 
-            await message.reply("No track is playing!")
-        } else { 
-            const track = mediaData.queue[0] 
-            const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
-                .setAuthor("Now Playing", client?.user?.displayAvatarURL())
-                .setTitle(track.title)
-                .setURL(track.url)
-                .setThumbnail(track.thumbnail)
-                .addField("Track Duration: ", `${track.duration}`)
-                .setColor(constants.YELLOW)
-                // TODO: add track duration progress to this embed
-            await message.channel.send(embed)
-        }
+  isThisCommand(command: string): boolean {
+    return command === this.command
+  }
+
+  async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
+    if ( mediaData === undefined || mediaData.queue === undefined || mediaData.queue[0] === undefined) {
+      await message.reply("No track is playing!")
+    } else {
+      const track = mediaData.queue[0]
+      const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
+        .setAuthor("Now Playing", client?.user?.displayAvatarURL())
+        .setTitle(track.title)
+        .setURL(track.url)
+        .setThumbnail(track.thumbnail)
+        .addField("Track Duration: ", `${track.duration}`)
+        .setColor(constants.YELLOW)
+      // TODO: add track duration progress to this embed
+      await message.channel.send(embed)
     }
+  }
 }

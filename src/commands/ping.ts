@@ -3,17 +3,17 @@ import { IBotCommand } from "../api"
 
 export default class testCommand implements IBotCommand {
 
-    private readonly command = "ping"
+  private readonly command = "ping"
 
-    help(): string[] {
-        return ["ping", "Pong."]
-    }
+  help(): string[] {
+    return ["ping", "Pong."]
+  }
 
-    isThisCommand(command: string): boolean {
-        return command === this.command
-    }
+  isThisCommand(command: string): boolean {
+    return command === this.command
+  }
 
-    async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
-        await message.channel.send("Pong")
-    }
+  async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
+    await message.channel.send("Pong")
+  }
 }

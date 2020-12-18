@@ -24,36 +24,38 @@ export default class volume implements IBotCommand {
                 .setTitle("Current default volume")
                 .setDescription(`Default volume is set to: \`${ConfigFile.config.volume}\``)
                 .setColor(constants.YELLOW)
-            await message.channel.send(embed)
+            return await message.channel.send(embed)
         }
 
         const defaultFlag: string = params[0]
         if (defaultFlag === "default") {
             if (params.length < 2 || !this.isValidVolume(+params[1])) {
-                await message.channel.send(this.badInput(embed))
+                return await message.channel.send(this.badInput(embed))
+            } else {
+                ConfigFile.config.volume = +params[1]
+                return await message.channel.send(embed
+                  .setTitle("Default volume set")
+                  .setDescription(`Set new default volume to \`${+params[1]}\``)
+                  .setColor(constants.YELLOW))
             }
-            ConfigFile.config.volume = +params[1]
-            await message.channel.send(embed
-                .setTitle("Default volume set")
-                .setDescription(`Set new default volume to \`${+params[1]}\``)
-                .setColor(constants.YELLOW))
         }
 
         if (this.isValidVolume(+params[0])) {
             if (mediaData.queue === undefined || mediaData.queue.length === 0) {
                 // no track is playing
-                await message.channel.send(embed
+                return await message.channel.send(embed
                     .setTitle("No track is playing")
                     .setDescription(`Can't change volume, no track is playing. Use \`volume default x\` to change the default volume.`)
                     .setColor(constants.YELLOW))
+            } else {
+                mediaData?.streamDispatcher?.setVolume(+params[0])
+                return await message.channel.send(embed
+                  .setTitle("Changed volume")
+                  .setDescription(`Changed volume for this track to \`${+params[0]}\``)
+                  .setColor(constants.YELLOW))
             }
-            mediaData?.streamDispatcher?.setVolume(+params[0])
-            await message.channel.send(embed
-                .setTitle("Changed volume")
-                .setDescription(`Changed volume for this track to \`${+params[0]}\``)
-                .setColor(constants.YELLOW))
         } else {
-            await message.channel.send(this.badInput(embed))
+            return await message.channel.send(this.badInput(embed))
         }
     }
 

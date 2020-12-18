@@ -5,28 +5,27 @@ import { constants } from "../constants"
 
 export default class help implements IBotCommand {
 
-    private command = "help"
+  private command = "help"
 
-    help(): string[] {
-        return ["help", "Display this text."]
-    }    
-    
-    isThisCommand(command: string): boolean {
-        return command === this.command
+  help(): string[] {
+    return ["help", "Display this text."]
+  }
+
+  isThisCommand(command: string): boolean {
+    return command === this.command
+  }
+
+  async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
+    const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
+      .setTitle("**__BlitzBot Manual__**")
+      .setColor(constants.YELLOW)
+
+    for (const commandName of ConfigFile.config.commands as string[]) {
+      const commandsClass = require(`${`${__dirname}`}/${commandName}`).default
+      const command = new commandsClass() as IBotCommand
+      embed.addField(command.help()[0], command.help()[1])
     }
 
-    async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
-
-        const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
-            .setTitle("**__BlitzBot Manual__**")
-            .setColor(constants.YELLOW)
-            
-        for (const commandName of ConfigFile.config.commands as string[]) {
-            const commandsClass = require(`${`${__dirname}`}/${commandName}`).default
-            const command = new commandsClass() as IBotCommand
-            embed.addField(command.help()[0], command.help()[1])
-        }
-        
-        await message.channel.send(embed)
-    }
+    await message.channel.send(embed)
+  }
 }

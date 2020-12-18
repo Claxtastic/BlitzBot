@@ -2,9 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.4.0]
-- Upgrade node
-- Use latest ytdl, other dependencies including TypeScript
-- Replace request-promise with node-fetch
+- This update is mainly housekeeping and updating dependencies, but most importantly the bot now runs on "the cloud" 🤓
 ###
 
 ## [1.3.2]

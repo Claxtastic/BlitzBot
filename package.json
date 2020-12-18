@@ -1,6 +1,6 @@
 {
   "name": "blitzbot",
-  "version": "1.4",
+  "version": "1.4.0",
   "engines": {
     "node": "14.15.x"
   },
@@ -20,7 +20,6 @@
     "@discordjs/opus": "^0.3.3",
     "bufferutil": "^4.0.2",
     "discord.js": "^12.5.1",
-    "erlpack": "github:discordapp/erlpack",
     "libsodium-wrappers": "^0.7.8",
     "node-fetch": "^2.6.1",
     "simple-youtube-api": "^5.2.1",

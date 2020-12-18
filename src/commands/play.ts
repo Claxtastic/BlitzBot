@@ -1,12 +1,13 @@
 import * as Discord from "discord.js"
 import * as ConfigFile from "../config"
-import { get } from "request-promise"
+import fetch, { Response } from "node-fetch"
 import { log, mediaData } from "../index"
 import { IBotCommand } from "../api"
 import { Track } from "../model/Track"
 import { SoundcloudTrack } from "../model/SoundcloudTrack"
 import { YoutubeTrack } from "../model/YoutubeTrack"
 import { constants } from "../constants"
+// import Youtube from "simple-youtube-api"
 
 export const queue = Array<Track>()
 export const streamOptions = { seek: 0 }
@@ -232,11 +233,9 @@ export default class play implements IBotCommand {
         log.info("Query is a Soundcloud query")
 
         // GET track from Soundcloud
-        return await get("http://api.soundcloud.com/resolve.json?url=" + query + "&client_id=" + this.soundcloudToken)
-            .then((body): Track => {
-                const response = JSON.parse(body)
-                return this.createSoundcloudTrack(response, voiceChannel) 
-            })
+        return await fetch("http://api.soundcloud.com/resolve.json?url=" + query + "&client_id=" + this.soundcloudToken)
+            .then((res: Response) => res.json())
+            .then((json: JSON): SoundcloudTrack => { return this.createSoundcloudTrack(json, voiceChannel) })
             .catch((err: Error) => {
                 log.error(err)
                 return Promise.reject(err)

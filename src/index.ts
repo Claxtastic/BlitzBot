@@ -18,7 +18,7 @@ class MediaData {
 
 // properties will be assigned once a queue has began from the play command
 export const mediaData = new MediaData()
-export const log = new Logger({minLevel: "info"})
+export const log = new Logger({minLevel: "debug"})
 
 client.on("ready", () => {
     console.log

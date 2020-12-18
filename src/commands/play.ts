@@ -287,8 +287,12 @@ export default class play implements IBotCommand {
             let highWaterMark: number
             // use a lower highWaterMark if the video is >= 45 min
             track.durationMs >= 2700000 ? highWaterMark = this.highWaterMarkLong : highWaterMark = this.highWaterMarkShort
-            return connection.play(await ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark }))
+            log.debug(`Getting play function for Youtube track with highWaterMark: ${highWaterMark}`)
+            let ytdlRes = await ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark })
+            log.debug(`Response from ytdl: ${ytdlRes}`)
+            return connection.play(ytdlRes)
         } else if (track.type === "soundcloud") {
+            log.debug(`Getting play function for Souncloud track`)
             return connection.play((track as SoundcloudTrack).streamUrl)
         }
     }
@@ -327,6 +331,7 @@ export default class play implements IBotCommand {
                         client?.user?.setPresence({ activity: { name: queue[0].title } })
                     })
                     .on("finish", () => {
+                        log.debug(`Track finished`)
                         this.playNextTrackOrStartTimeout(queue, client, voiceChannel)
                     })
                     .on("error", (e: Error) => {
@@ -344,6 +349,7 @@ export default class play implements IBotCommand {
         mediaData?.streamDispatcher?.end()
         queue.shift()
         client?.user?.setPresence({ activity: { name: "" } })
+        log.debug(`Queue length: ${queue.length}`)
         if (queue.length >= 1) {
             this.playTrack(queue, client)
         } else {

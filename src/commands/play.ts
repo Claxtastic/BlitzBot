@@ -7,16 +7,14 @@ import { Track } from "../model/Track"
 import { SoundcloudTrack } from "../model/SoundcloudTrack"
 import { YoutubeTrack } from "../model/YoutubeTrack"
 import { constants } from "../constants"
-// import Youtube from "simple-youtube-api"
+import Youtube from "simple-youtube-api"
+import ytdl from "ytdl-core"
 
 export const queue = Array<Track>()
 export const streamOptions = { seek: 0 }
 export default class play implements IBotCommand {
 
-    private readonly ytdl = require('ytdl-core')
-    private readonly Youtube = require('simple-youtube-api')
-  
-    private readonly youtubeAPI = new this.Youtube(ConfigFile.config.youtubeToken)
+    private readonly youtubeAPI = new Youtube(ConfigFile.config.youtubeToken)
 
     private readonly soundcloudToken: string = constants.SOUNCLOUD_TOKEN
     private readonly highWaterMarkLong: number = constants.HIGH_WATER_MARK_LONG
@@ -289,7 +287,7 @@ export default class play implements IBotCommand {
             let highWaterMark: number
             // use a lower highWaterMark if the video is >= 45 min
             track.durationMs >= 2700000 ? highWaterMark = this.highWaterMarkLong : highWaterMark = this.highWaterMarkShort
-            return connection.play(await this.ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark }))
+            return connection.play(await ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark }))
         } else if (track.type === "soundcloud") {
             return connection.play((track as SoundcloudTrack).streamUrl)
         }

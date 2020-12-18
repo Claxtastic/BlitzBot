@@ -17,14 +17,14 @@
     "windows-build-tools": "^5.2.2"
   },
   "dependencies": {
-    "@discordjs/opus": "^0.3.2",
+    "@discordjs/opus": "^0.3.3",
     "bufferutil": "^4.0.2",
     "discord.js": "^12.5.1",
     "erlpack": "github:discordapp/erlpack",
-    "libsodium-wrappers": "^0.7.6",
+    "libsodium-wrappers": "^0.7.8",
     "node-fetch": "^2.6.1",
     "simple-youtube-api": "^5.2.1",
-    "tslog": "^2.9.0",
+    "tslog": "^3.0.2",
     "yarn": "^1.22.4",
     "ytdl-core": "^4.2.0"
   },

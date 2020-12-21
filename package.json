@@ -1,6 +1,6 @@
 {
   "name": "blitzbot",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "engines": {
     "node": "14.15.x"
   },
@@ -25,7 +25,7 @@
     "simple-youtube-api": "^5.2.1",
     "tslog": "^3.0.2",
     "yarn": "^1.22.4",
-    "ytdl-core": "^4.2.0"
+    "ytdl-core": "^4.2.1"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.5.7",

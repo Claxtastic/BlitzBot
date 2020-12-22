@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.5.0]
-- Add ability to seek tracks. See `!seek` .
+- You can now seek to a timestamp like `!seek hh:mm:ss`, or start a track at a timestamp like `!play https://www.youtube.com/watch?v=PpA1J-7-P10& 00:03:54`.
 ###
 
 ## [1.4.0]

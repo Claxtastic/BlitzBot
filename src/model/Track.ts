@@ -5,10 +5,11 @@ export interface Track {
   url: string
   title: string
   duration: string
-  durationMs: number
+  durationSec: number
   thumbnail: string
   voiceChannel: Discord.VoiceChannel
   type: string
+  seekTime: number
 
   toString(): string
 }

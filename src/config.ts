@@ -10,6 +10,7 @@ export const config = {
     "play",
     "skip",
     "volume",
+    "seek",
     "help",
     "nowplaying",
     "drop",

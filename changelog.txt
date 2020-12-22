@@ -1,9 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.5.0]
+- You can now seek to a timestamp like `!seek hh:mm:ss`, or start a track at a timestamp like `!play https://www.youtube.com/watch?v=PpA1J-7-P10& 00:03:54`.
+###
+
 ## [1.4.0]
 - This update is mainly housekeeping and updating dependencies, but most importantly the bot now runs on "the cloud" 🤓
-###
+##
 
 ## [1.3.2]
 - Fix most "could not find player config" errors

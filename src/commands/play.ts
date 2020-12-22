@@ -7,6 +7,7 @@ import {Track} from "../model/Track"
 import {SoundcloudTrack} from "../model/SoundcloudTrack"
 import {YoutubeTrack} from "../model/YoutubeTrack"
 import {constants} from "../constants"
+import seek from "./seek"
 import Youtube from "simple-youtube-api"
 import ytdl from "ytdl-core"
 
@@ -112,6 +113,17 @@ export default class play implements IBotCommand {
     return embed
   }
 
+  isYouTube(query: String): RegExpMatchArray { return query.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/) }
+
+  isYoutubePlaylist(query: String): RegExpMatchArray { return query.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/playlist.+/) }
+
+  isSoundcloud(query: String): RegExpMatchArray { return query.match(/^(http(s)?:\/\/)?((w){3}.)?soundcloud(\.com)?\/.+/) }
+
+  hasTimestamp(params: String[]): RegExpMatchArray {
+    if (params[1]) return params[1].match(/\d{2}:\d{2}:\d{2}/)
+    else return null
+  }
+
   async executeCommand(params: string[], message: Discord.Message, client: Discord.Client) {
     if (!message.member?.voice || !message.member.voice.channel) {
       return message.reply("You must join a voice channel before playing!")
@@ -121,18 +133,16 @@ export default class play implements IBotCommand {
     this.textChannel = message.channel as Discord.TextChannel
 
     let query: string = params[0]
-    if (!query) return message.reply("Please provide either: 1. A YouTube URL 2. A Soundcloud URL 3. YouTube search terms")
+    if (!query) return message.reply("Please provide either: 1. A YouTube URL with optional timestamp 2. A YouTube playlist 3. A Soundcloud URL 4. YouTube search terms")
 
     // the resulting track created by the query
     let track: Track
-    /* Handle the message we received by checking what type of query it is */
-    // if query is a YouTube URL
-    if (query.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/)) {
+    let seekTime: number = 0
 
-      // if query is a YouTube Playlist URL
-      if (query.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/playlist.+/)) {
-        // return because the rest of this function pertains to single queries
-        return await this.handleYoutubePlaylist(query, message, client)
+    /** Handle the message we received by checking what type of query it is **/
+    if (this.isYouTube(query)) {
+      if (this.isYoutubePlaylist(query)) {
+        await this.handleYoutubePlaylist(query, message, client)
       }
       // else query is Single Youtube URL
       else {
@@ -141,25 +151,24 @@ export default class play implements IBotCommand {
           .split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/)
 
         // the youtube video /watch? ID
-        // const id: string = queryParts[2].split(/[^0-9a-z_\-]/i)[0]
         const id: string = queryParts[2].split(/[^0-9a-z_-]/i)[0]
 
         track = await this.handleYoutubeUrl(id, voiceChannel)
+        if (this.hasTimestamp(params)) track.seekTime = seek.getSecFromTimestamp(params[1])
       }
     }
-    // if query is a Soundcloud URL
-    else if (query.match(/^(http(s)?:\/\/)?((w){3}.)?soundcloud(\.com)?\/.+/)) {
+    else if (this.isSoundcloud(query)) {
       track = await this.handleSoundcloudTrack(query, voiceChannel)
+      if (this.hasTimestamp(params)) track.seekTime = seek.getSecFromTimestamp(params[1])
     }
     // else play argument was a YouTube search query
     else {
-      // join query parts with space
       query = params.join(" ")
       track = await this.handleYoutubeQuery(query, voiceChannel)
     }
 
     // do a final check before we enqueue and attempt playing of track
-    if (track) {
+    if (track !== undefined) {
       await this.enqueue(track, message, client)
     }
     else {
@@ -188,9 +197,9 @@ export default class play implements IBotCommand {
         // GET video object for top result
         return await this.youtubeAPI.getVideoByID(videoResults[0].id)
           .then(video => this.createYoutubeTrack(video, voiceChannel))
-          .catch((e: Error) => log.error(`Error getting video by ID: ${videoResults[0].id}`))
+          .catch((e: Error) => log.error(e))
       })
-      .catch((e: Error) => log.error(`Error getting video results for query: ${query}`))
+      .catch((e: Error) => log.error(e))
   }
 
   /** Handle a Youtube playlist query **/
@@ -216,7 +225,8 @@ export default class play implements IBotCommand {
           })
           .catch((e: Error) => log.error(`Error getting videos from playlist: ${playlist.title}\n${e}`))
       })
-      .catch((e: Error) => log.error(`Error getting playlist for query:" ${query}`))
+      .catch((e: Error) => log.error(e))
+    return
   }
 
   /** Handle a Soundcloud track query **/
@@ -274,17 +284,19 @@ export default class play implements IBotCommand {
   }
 
   async getPlayFunction(track: Track, connection: Discord.VoiceConnection)  {
+    let streamOptions = { fec: true, seek: track.seekTime }
+
     if (track.type === "youtube") {
       let highWaterMark: number
       // use a lower highWaterMark if the video is >= 45 min
       track.durationMs >= 2700000 ? highWaterMark = this.highWaterMarkLong : highWaterMark = this.highWaterMarkShort
       log.debug(`Getting play function for Youtube track with highWaterMark: ${highWaterMark}`)
-      let ytdlRes = await ytdl(queue[0].url, { quality: "highestaudio", highWaterMark: highWaterMark })
+      let ytdlRes = await ytdl(queue[0].url, { filter: 'audioonly', quality: "highestaudio", highWaterMark: highWaterMark })
       log.debug(`Response from ytdl: ${ytdlRes}`)
-      return connection.play(ytdlRes)
+      return connection.play(ytdlRes, streamOptions)
     } else if (track.type === "soundcloud") {
       log.debug(`Getting play function for Soundcloud track`)
-      return connection.play((track as SoundcloudTrack).streamUrl)
+      return connection.play((track as SoundcloudTrack).streamUrl, streamOptions)
     }
   }
 
@@ -298,15 +310,14 @@ export default class play implements IBotCommand {
             connection.disconnect()
           }
         })
-      },
-      900000)
+      }, 900000)
   }
 
   endIdleTimeout() {
     clearTimeout(this.idleTimer)
   }
 
-  playTrack(queue: Array<Track>, client: Discord.Client) {
+  playTrack(queue: Array<Track>, client: Discord.Client, seek = 0) {
     let voiceChannel: Discord.VoiceChannel
 
     queue[0].voiceChannel

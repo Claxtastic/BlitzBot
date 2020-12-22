@@ -9,6 +9,7 @@ export interface Track {
   thumbnail: string
   voiceChannel: Discord.VoiceChannel
   type: string
+  seekTime: number
 
   toString(): string
 }

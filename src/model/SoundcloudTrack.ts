@@ -11,9 +11,10 @@ export class SoundcloudTrack implements Track {
   voiceChannel: Discord.VoiceChannel
   streamUrl: string
   type: string
+  seekTime: number = 0
 
   constructor(url: string, title: string, duration: string, durationMs: number, thumbnail: string,
-              voiceChannel: Discord.VoiceChannel, streamUrl: string, type: string) {
+              voiceChannel: Discord.VoiceChannel, streamUrl: string, type: string, seekTime: number) {
     this.url = url
     this.title = title
     this.duration = duration
@@ -22,6 +23,7 @@ export class SoundcloudTrack implements Track {
     this.voiceChannel = voiceChannel
     this.streamUrl = streamUrl
     this.type = type
+    this.seekTime = seekTime
   }
 
   public toString() {

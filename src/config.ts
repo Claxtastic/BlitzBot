@@ -1,7 +1,7 @@
 export const config = {
   "discordToken": "",
   "youtubeToken": "",
-  "prefix": "!",
+  "prefix": "?",
   "volume": 1.25,
   "commands": [
     "ping",
@@ -10,6 +10,7 @@ export const config = {
     "play",
     "skip",
     "volume",
+    "seek",
     "help",
     "nowplaying",
     "drop",

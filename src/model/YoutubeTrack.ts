@@ -10,9 +10,10 @@ export class YoutubeTrack implements Track {
   thumbnail: string
   voiceChannel: Discord.VoiceChannel
   type: string
+  seekTime: number = 0
 
   constructor(url: string, title: string, duration: string, durationMs: number, thumbnail: string,
-              voiceChannel: Discord.VoiceChannel, type: string) {
+              voiceChannel: Discord.VoiceChannel, type: string, seekTime: number) {
     this.url = url
     this.title = title
     this.duration = duration
@@ -20,6 +21,7 @@ export class YoutubeTrack implements Track {
     this.thumbnail = thumbnail
     this.voiceChannel = voiceChannel
     this.type = type
+    this.seekTime = seekTime
   }
 
   public toString() {

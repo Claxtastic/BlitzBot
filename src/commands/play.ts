@@ -24,6 +24,7 @@ export default class play implements IBotCommand {
 
   private idleTimer: NodeJS.Timeout
   private textChannel: Discord.TextChannel | undefined
+  private lastError: string = ""
 
   help(): string[] {
     return ["play", "Play a YouTube link, the 1st result of a YouTube search, YouTube playlist, or a Soundcloud link."]
@@ -41,8 +42,7 @@ export default class play implements IBotCommand {
       embed.setTitle("Track added to queue")
     }
 
-    embed
-      .setColor(constants.RED)
+    embed.setColor(constants.RED)
       .setThumbnail(track.thumbnail)
       .setDescription(`${track.title} added to queue \n ${track.url}`)
       .addField("Track Duration: ", `${track.duration}`)
@@ -51,8 +51,7 @@ export default class play implements IBotCommand {
 
   createPlaylistResponse(playlist, length: number) {
     const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
-    embed
-      .setTitle(`Starting playlist ${playlist.title}`)
+    embed.setTitle(`Starting playlist ${playlist.title}`)
       .setColor(constants.RED)
       .setThumbnail(playlist.thumbnails.high.url)
       .setDescription(`Added ${length} tracks to queue \n ${playlist.url}`)
@@ -61,8 +60,7 @@ export default class play implements IBotCommand {
 
   createErrorResponse(track: Track, e: Error): Discord.MessageEmbed {
     const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
-    embed
-      .setTitle(`${track.title} was unable to be played.`)
+    embed.setTitle(`${track.title} was unable to be played.`)
       .setColor(constants.RED)
       .setDescription(`This could be unavoidable due to copyright or other restrictions, but it doesn't hurt to try again.`)
       .addField("Verbose error: ", `\`\`\`${e}\`\`\``)
@@ -139,11 +137,13 @@ export default class play implements IBotCommand {
 
     // do a final check before we enqueue and attempt playing of track
     if (track !== undefined) {
+      // save the most recently played track for the replay command
+      mediaData.lastPlayed = track
       await this.enqueue(track, message, client)
     }
     else {
-      log.error(`Track is undefined; not enqueuing`)
-      return message.channel.send(`Error when handling the query; this query was not parsed into a playable track`)
+      log.error(this.lastError)
+      return message.channel.send(this.lastError)
     }
   }
 
@@ -166,9 +166,13 @@ export default class play implements IBotCommand {
     return await this.youtubeAPI.searchVideos(query, 1)
       .then(async videoResults => {
         // GET video object for top result
-        return await this.youtubeAPI.getVideoByID(videoResults[0].id)
-          .then(video => this.createYoutubeTrack(video, voiceChannel))
-          .catch((e: Error) => log.error(e))
+        if (videoResults.length > 0) {
+          return await this.youtubeAPI.getVideoByID(videoResults[0].id)
+            .then(video => this.createYoutubeTrack(video, voiceChannel))
+            .catch((e: Error) => log.error(e))
+        } else {
+          this.lastError = "❌ No videos found. Did you make a typo?"
+        }
       })
       .catch((e: Error) => log.error(e))
   }

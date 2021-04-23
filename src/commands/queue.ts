@@ -9,7 +9,7 @@ export default class queue implements IBotCommand {
   private readonly command: string = "queue"
 
   help(): string[] {
-    return ["queue", "Show the first 10 queued tracks."]
+    return ["queue", "Show the next 10 queued tracks."]
   }
 
   isThisCommand(command: string): boolean {
@@ -29,7 +29,7 @@ export default class queue implements IBotCommand {
     const embed: Discord.MessageEmbed = new Discord.MessageEmbed()
       .setTitle("Queue")
       .setColor(constants.YELLOW)
-    let position = 1
+    let position = 0
     copiedQueue.forEach(track => {
       embed.addField(position, `\`\`\`${track.title}\`\`\``, true)
       position++

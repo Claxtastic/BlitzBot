@@ -1,3 +1,6 @@
+import { Track } from "./model/Track"
+import MediaData from "./model/MediaData"
+
 export default class utils {
 
   static getSecFromTimestamp(timestamp: String): number {
@@ -33,6 +36,15 @@ export default class utils {
         ? "0" + seconds : seconds
         ? seconds : "00"
     }`
+  }
+
+  static copyQueue(queue: Array<Track>) {
+    return queue.map(track => Object.assign({}, track))
+  }
+
+  static removeAndEndTrack(mediaData: MediaData) {
+    mediaData.queue.shift()
+    mediaData.streamDispatcher.end()
   }
 
   static formatVideoDuration(durationObject: { hours: number; minutes: number; seconds: number }): string {

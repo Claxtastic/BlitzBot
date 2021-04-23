@@ -1,7 +1,7 @@
 import * as Discord from "discord.js"
 import { IBotCommand } from "../api"
 import { mediaData, log } from "../index"
-import { Track } from "../model/Track"
+import utils from "../utils"
 
 export default class skip implements IBotCommand {
 
@@ -26,24 +26,21 @@ export default class skip implements IBotCommand {
             const numberOfTracksToSkip: number = mediaData.queue.length
             log.info(`Skipping all tracks (${numberOfTracksToSkip})`)
             for (let i = 0; i < numberOfTracksToSkip; i++) {
-              mediaData.queue.shift()
-              mediaData.streamDispatcher.end()
+              utils.removeAndEndTrack(mediaData)
             }
             await message.channel.send(`**Skipped all tracks in queue!** :fast_forward:`)
           }
           else if (parseInt(params[0]) != undefined) {
             log.info(`Skipping next ${params[0]} tracks`)
             for (let i = 0; i < parseInt(params[0])-1; i++) {
-              mediaData.queue.shift()
-              mediaData.streamDispatcher.end()
+              utils.removeAndEndTrack(mediaData)
             }
             await message.channel.send(`**Skipped ${params[0]} tracks!** :fast_forward:`)
           }
         } else {
-          const copiedQueue: Array<Track> = mediaData.queue.map(track => Object.assign({}, track))
-          const skippedTrack: string = copiedQueue.shift().title
+          const skippedTrackTitle: string = mediaData.queue[0].title
           mediaData.streamDispatcher.end()
-          await message.channel.send(`\`${skippedTrack}\` :fast_forward: **skipped!**`)
+          await message.channel.send(`\`${skippedTrackTitle}\` :fast_forward: **skipped!**`)
         }
       }
     }

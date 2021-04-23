@@ -18,6 +18,8 @@ export const config = {
     "pause",
     "resume",
     "restart",
-    "changelog"
+    "changelog",
+    "remove",
+    "replay"
   ]
 }

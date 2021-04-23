@@ -2,19 +2,14 @@ import * as Discord from "discord.js"
 import * as ConfigFile from "./config"
 import changelog from "./commands/changelog"
 import { IBotCommand } from "./api"
-import { Track } from "./model/Track"
 import { Logger } from "tslog"
+import MediaData from "./model/MediaData"
 
 const client: Discord.Client = new Discord.Client()
 
 const commands: IBotCommand[] = []
 
 loadCommands(`${__dirname}/commands`)
-
-class MediaData {
-  public queue?: Array<Track>
-  public streamDispatcher?: Discord.StreamDispatcher
-}
 
 // properties will be assigned once a queue has began from the play command
 export const mediaData = new MediaData()

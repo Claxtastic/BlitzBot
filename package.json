@@ -1,9 +1,6 @@
 {
   "name": "blitzbot",
-  "version": "1.6.0",
-  "engines": {
-    "node": "14.16.x"
-  },
+  "version": "1.6.1",
   "description": "A Discord music bot made with Discord.js!",
   "main": "index.js",
   "scripts": {
@@ -25,7 +22,7 @@
     "simple-youtube-api": "^5.2.1",
     "tslog": "^3.0.2",
     "yarn": "^1.22.4",
-    "ytdl-core": "^4.5.0"
+    "ytdl-core": "^4.8.0"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.5.7",

@@ -60,6 +60,7 @@ function loadCommands(commandsPath: string) {
   if (ConfigFile.config.discordToken === "" || ConfigFile.config.youtubeToken === "") {
     ConfigFile.config.discordToken = process.env.discordToken as string
     ConfigFile.config.youtubeToken = process.env.youtubeToken as string
+    ConfigFile.config.youtubeToken2 = process.env.youtubeToken2 as string
   }
 
   for (const commandName of ConfigFile.config.commands as string[]) {

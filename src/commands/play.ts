@@ -156,7 +156,15 @@ export default class play implements IBotCommand {
     return await this.youtubeAPI.getVideoByID(id)
       .then(video => this.createYoutubeTrack(video, voiceChannel))
         .catch((e: Error) => log.error(`Error parsing Youtube track:\n${e}`))
-      .catch((e: Error) => log.error(`Error getting response from Youtube:\n${e}`))
+      .catch((e: Error) =>  {    
+        if (e.message.includes("429")) {
+          // switch token
+        }
+        else if (e.message.includes("Cookie")) {
+          // try again without cookie
+        }
+        log.error(`Error getting response from Youtube:\n${e}`)
+      }) 
   }
 
   /** Handle Youtube keyword query **/

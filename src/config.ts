@@ -1,6 +1,7 @@
 export const config = {
   "discordToken": "",
   "youtubeToken": "",
+  "youtubeToken2": "",
   "prefix": "!",
   "volume": 1.25,
   "commands": [

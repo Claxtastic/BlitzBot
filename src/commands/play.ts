@@ -271,7 +271,8 @@ export default class play implements IBotCommand {
       // use a lower highWaterMark if the video is >= 45 min
       track.durationSec >= 2700000 ? highWaterMark = this.highWaterMarkLong : highWaterMark = this.highWaterMarkShort
       log.debug(`Getting play function for Youtube track with highWaterMark: ${highWaterMark}`)
-      let ytdlRes = await ytdl(queue[0].url, { filter: 'audioonly', quality: "highestaudio", highWaterMark: highWaterMark, requestOptions: { headers: { cookie: this.cookie }}})
+      let ytdlRes = await ytdl(queue[0].url, { filter: 'audioonly', quality: "highestaudio", highWaterMark: highWaterMark })
+      // let ytdlRes = await ytdl(queue[0].url, { filter: 'audioonly', quality: "highestaudio", highWaterMark: highWaterMark, requestOptions: { headers: { cookie: this.cookie }}})
       log.debug(`Response from ytdl: ${ytdlRes}`)
       return connection.play(ytdlRes, streamOptions)
     } else if (track.type === "soundcloud") {

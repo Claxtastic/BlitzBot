@@ -22,7 +22,7 @@
     "simple-youtube-api": "^5.2.1",
     "tslog": "^3.0.2",
     "yarn": "^1.22.4",
-    "ytdl-core": "^4.8.0"
+    "ytdl-core": "^4.8.2"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.5.7",

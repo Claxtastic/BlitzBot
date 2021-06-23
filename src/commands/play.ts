@@ -333,7 +333,9 @@ export default class play implements IBotCommand {
 
   /** Start next track or start sleep countdown **/
   async playNextTrackOrStartTimeout(queue: Array<Track>, client: Discord.Client, voiceChannel: Discord.VoiceChannel) {
-    mediaData.streamDispatcher.end()
+    if (mediaData.streamDispatcher !== undefined) {
+      mediaData.streamDispatcher.end()
+    }
     queue.shift()
     await client.user.setPresence({ activity: { name: "" } })
     log.debug(`Queue length: ${queue.length}`)

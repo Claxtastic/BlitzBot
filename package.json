@@ -1,6 +1,6 @@
 {
   "name": "blitzbot",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "A Discord music bot made with Discord.js!",
   "main": "index.js",
   "scripts": {

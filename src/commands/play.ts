@@ -134,6 +134,7 @@ export default class play implements IBotCommand {
     else {
       query = params.join(" ")
       track = await this.handleYoutubeQuery(query, voiceChannel)
+      log.debug(`created track: ${track.toString()}`)
     }
 
     // do a final check before we enqueue and attempt playing of track

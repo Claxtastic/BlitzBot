@@ -14,14 +14,14 @@
     "windows-build-tools": "^5.2.2"
   },
   "dependencies": {
-    "@discordjs/opus": "^0.5.0",
+    "@discordjs/opus": "^0.5.3",
     "bufferutil": "^4.0.3",
     "discord.js": "^12.5.3",
     "libsodium-wrappers": "^0.7.9",
     "node-fetch": "^2.6.1",
     "simple-youtube-api": "^5.2.1",
     "tslog": "^3.0.2",
-    "yarn": "^1.22.4",
+    "yarn": "^1.22.10",
     "ytdl-core": "^4.8.2"
   },
   "devDependencies": {

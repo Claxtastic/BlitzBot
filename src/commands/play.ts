@@ -134,7 +134,7 @@ export default class play implements IBotCommand {
     else {
       query = params.join(" ")
       track = await this.handleYoutubeQuery(query, voiceChannel)
-      log.debug(`created track: ${track.toString()}`)
+      log.debug(`created track: ${JSON.stringify(track)}`)
     }
 
     // do a final check before we enqueue and attempt playing of track
@@ -161,7 +161,7 @@ export default class play implements IBotCommand {
   }
 
   /** Handle Youtube keyword query **/
-  async handleYoutubeQuery(query: String, voiceChannel: Discord.VoiceChannel): Promise<Track> {
+  async handleYoutubeQuery(query: String, voiceChannel: Discord.VoiceChannel): Promise<YoutubeTrack> {
     log.debug("Query is a Youtube query")
 
     // GET videos with query
@@ -272,9 +272,8 @@ export default class play implements IBotCommand {
       // use a lower highWaterMark if the video is >= 45 min
       track.durationSec >= 2700000 ? highWaterMark = this.highWaterMarkLong : highWaterMark = this.highWaterMarkShort
       log.debug(`Getting play function for Youtube track with highWaterMark: ${highWaterMark}`)
-      let ytdlRes = await ytdl(queue[0].url, { filter: 'audioonly', quality: "highestaudio", highWaterMark: highWaterMark })
-      // let ytdlRes = await ytdl(queue[0].url, { filter: 'audioonly', quality: "highestaudio", highWaterMark: highWaterMark, requestOptions: { headers: { cookie: this.cookie }}})
-      log.debug(`Response from ytdl: ${ytdlRes}`)
+      let ytdlRes = await ytdl(queue[0].url, { filter: 'audioonly', quality: "highestaudio", highWaterMark: highWaterMark, requestOptions: { headers: { cookie: this.cookie }}})
+      log.debug(`Response from ytdl: ${JSON.stringify(ytdlRes)}`)
       return connection.play(ytdlRes, streamOptions)
     } else if (track.type === "soundcloud") {
       log.debug(`Getting play function for Soundcloud track`)
@@ -304,32 +303,35 @@ export default class play implements IBotCommand {
   /** Stream the current track **/
   playTrack(queue: Array<Track>, client: Discord.Client) {
     let voiceChannel: Discord.VoiceChannel
+    log.debug(`queue length: ${queue.length}`)
 
     queue[0].voiceChannel
-      .join().then(async (connection: Discord.VoiceConnection) => {
-      const dispatcher: Discord.StreamDispatcher = (await this.getPlayFunction(queue[0], connection))
-        .on("start", () => {
-          log.info(`Starting track ${queue[0].title}`)
-          this.endIdleTimeout()
-          dispatcher.setVolume(ConfigFile.config.volume)
-          // save dispatcher so that it can be accessed by skip and other commands
-          mediaData.streamDispatcher = dispatcher
-          voiceChannel = queue[0].voiceChannel
-          client.user.setPresence({ activity: { name: queue[0].title } })
+      .join()
+        .catch((err: Error) => { log.error(`Failed joining channel: ${err}`) })
+        .then(async (connection: Discord.VoiceConnection) => {
+          const dispatcher: Discord.StreamDispatcher = (await this.getPlayFunction(queue[0], connection))
+            .on("start", () => {
+              log.info(`Starting track ${queue[0].title}`)
+              this.endIdleTimeout()
+              dispatcher.setVolume(ConfigFile.config.volume)
+              // save dispatcher so that it can be accessed by skip and other commands
+              mediaData.streamDispatcher = dispatcher
+              voiceChannel = queue[0].voiceChannel
+              client.user.setPresence({ activity: { name: queue[0].title } })
+            })
+            .on("finish", () => {
+              log.debug(`Track finished`)
+              this.playNextTrackOrStartTimeout(queue, client, voiceChannel)
+            })
+            .on("error", (e: Error) => {
+              // send an embed with the error
+              const embed: Discord.MessageEmbed = this.createErrorResponse(queue[0], e)
+              this.textChannel.send(embed)
+              log.error(`Error playing track: ${e}`)
+              // graceful recovery, start next track or timeout
+              this.playNextTrackOrStartTimeout(queue, client, voiceChannel)  
+            })
         })
-        .on("finish", () => {
-          log.debug(`Track finished`)
-          this.playNextTrackOrStartTimeout(queue, client, voiceChannel)
-        })
-        .on("error", (e: Error) => {
-          // send an embed with the error
-          const embed: Discord.MessageEmbed = this.createErrorResponse(queue[0], e)
-          this.textChannel.send(embed)
-          log.error(`Error playing track: ${e}`)
-          // graceful recovery, start next track or timeout
-          this.playNextTrackOrStartTimeout(queue, client, voiceChannel)
-        })
-    })
   }
 
   /** Start next track or start sleep countdown **/

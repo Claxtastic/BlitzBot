@@ -13,7 +13,7 @@ loadCommands(`${__dirname}/commands`)
 
 // properties will be assigned once a queue has began from the play command
 export const mediaData = new MediaData()
-export const log = new Logger({minLevel: "debug"})
+export const log = new Logger({minLevel: "info"})
 
 client.on("ready", async () => {
   console.log

@@ -1,11 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.6.1]
+- Updated with new youtube-download version to fix "Status code: 410"
+###
+
 ## [1.6.0]
 - Fix `undefined` track bug when no YouTube videos are found for search terms.
 - New `!remove` command. You can remove a track from the queue like `!remove 3` or `!remove part of or all of the track title`.
 - New `!replay` command. As long as no tracks are playing, you can replay the last played track  with `!replay` or `!r`.
-###
+##
 
 ## [1.5.0]
 - You can now seek to a timestamp like `!seek hh:mm:ss`, or start a track at a timestamp like `!play https://www.youtube.com/watch?v=PpA1J-7-P10& 00:03:54`.

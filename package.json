@@ -14,7 +14,7 @@
     "windows-build-tools": "^5.2.2"
   },
   "dependencies": {
-    "@discordjs/opus": "^0.5.3",
+    "@discordjs/opus": "^0.8.0",
     "bufferutil": "^4.0.3",
     "discord.js": "^12.5.3",
     "ffmpeg-static": "^4.4.0",
